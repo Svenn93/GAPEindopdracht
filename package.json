@@ -1,0 +1,12 @@
+{
+  "name": "week08_labo",
+  "devDependencies": {
+    "grunt":"*",
+    "grunt-contrib-concat":"*",
+    "grunt-contrib-uglify":"*",
+    "grunt-contrib-watch":"*",
+    "grunt-contrib-jshint":"*",
+    "grunt-contrib-copy":"*",
+    "grunt-concurrent":"*"
+    }
+}
