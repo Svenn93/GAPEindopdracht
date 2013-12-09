@@ -2,7 +2,7 @@
 
 /*globals stage:true, Bound:true, Platform:true, CollisionDetection:true, 
 MovingPlatform:true, MovingPlatformUP:true, createjs:true, Reward:true, World:true, Player:true*/
-(function(){
+var App = (function(){
 
 	var boxes, movingboxes, player, keys, width, height, x;
 	var ticker;
@@ -11,7 +11,7 @@ MovingPlatform:true, MovingPlatformUP:true, createjs:true, Reward:true, World:tr
 	var cameras, cameraVisibilities;
 	var aantalSwitches;
 
-	function init(){
+	function App(){
 		console.log('hello world');
 
 		boxes = [];
@@ -25,6 +25,7 @@ MovingPlatform:true, MovingPlatformUP:true, createjs:true, Reward:true, World:tr
 		aantalSwitches = 0;
 		cameraVisibilities = [];
 		stage = new createjs.Stage('cnvs');
+		console.log(new World(1024, 700));
 		world = new World(1024, 700);
 
 		//dimensions van het canvas
@@ -36,7 +37,7 @@ MovingPlatform:true, MovingPlatformUP:true, createjs:true, Reward:true, World:tr
 		buildBounds();
 		buildPlatforms();
 		//aanmaken player + adden
-		player = new Player(10, world.height-80, 20, 20);
+		player = new Player(10, world.height - 100, 20, 20);
 		player.gravity = world.gravity;
 		player.friction = world.friction;
 		world.addChild(player.shape);
@@ -241,8 +242,7 @@ MovingPlatform:true, MovingPlatformUP:true, createjs:true, Reward:true, World:tr
 			cameraVisibilities[cameraNumber] = visibility;
 		}
 	}
-
-	init();
+	return App;
 
 })();
 
@@ -573,5 +573,8 @@ var World =(function(){
 	return World;
 
 })();
+
+/*globals App:true*/
+var app = new App();
 
 })();
