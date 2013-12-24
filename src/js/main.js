@@ -1,15 +1,7 @@
 (function(){
 
 /*globals stage:true, Bound:true, Platform:true, CollisionDetection:true, 
-<<<<<<< HEAD
-<<<<<<< HEAD
-MovingPlatform:true, MovingPlatformUP:true, createjs:true, Reward:true, World:true, Player:true*/
-=======
 MovingPlatform:true, MovingPlatformUP:true, createjs:true, Reward:true, World:true, Player:true, Image:true*/
->>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
-=======
-MovingPlatform:true, MovingPlatformUP:true, createjs:true, Reward:true, World:true, Player:true, Image:true*/
->>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 var App = (function(){
 
 	var boxes, movingboxes, player, keys, width, height, x;
@@ -19,23 +11,11 @@ var App = (function(){
 	var cameras, cameraVisibilities;
 	var aantalSwitches;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-	function App(){
-
-		console.log("hlalala");
-=======
-=======
->>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 	var tileset;
 	var mapData;
 
 	function App(){
 		console.log('hello world');
-<<<<<<< HEAD
->>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
-=======
->>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 
 		boxes = [];
 		movingboxes = [];
@@ -183,13 +163,6 @@ var App = (function(){
 		console.log(boxes);
 	}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-	function buildPlatforms() {
-		var box1 = new Platform(0, height-40 ,200, 40, '#000000');
-=======
-=======
->>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 	function initLayers() {
 		var w = mapData.tilesets[0].tilewidth;
 		var h = mapData.tilesets[0].tileheight;
@@ -234,10 +207,6 @@ var App = (function(){
 		tileset.onLoad = initLayers();
 
 		/*var box1 = new Platform(0, height-40 ,200, 40, '#000000');
-<<<<<<< HEAD
->>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
-=======
->>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 		var box2 = new Platform(500, height-40, 200, 40, '#000000');
 		var box3 = new Platform(700, 40, 150, height-40, '#000000');
 		
@@ -263,23 +232,10 @@ var App = (function(){
 		var movingBox3 = new MovingPlatformUP(0, height - 310, 80, 20, '#00ff00', height - 310, 50, 'u', 4500);
 
 		var deathzone1 = new Platform(200, height - 40, 300, 40, '#ff0000');
-<<<<<<< HEAD
-<<<<<<< HEAD
-		var deathzone2 = new Platform(0, height - 260, 580, 60, '#ff0000');
-
-		//******VISUEEL WEERGEVEN****////
-		world.addChild(box1.shape);
-=======
-=======
->>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 		var deathzone2 = new Platform(0, height - 260, 580, 60, '#ff0000');*/
 
 		//******VISUEEL WEERGEVEN****////
 		/*world.addChild(box1.shape);
-<<<<<<< HEAD
->>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
-=======
->>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 		world.addChild(box2.shape);
 		world.addChild(box3.shape);
 		world.addChild(box4.shape);
@@ -296,50 +252,21 @@ var App = (function(){
 		world.addChild(movingBox1.shape);
 		world.addChild(movingBox2.shape);
 		world.addChild(movingBox3.shape);
-<<<<<<< HEAD
-<<<<<<< HEAD
-		world.addChild(reward.shape);
-
-		//****COLLISION LOGICA*******/
-		boxes.push(box1, box2, box3, box4, box5, box6, box7, box8, box9, box10, box11, box12, movingBox1, movingBox2, movingBox3);
-		deathzones.push(deathzone1, deathzone2);
-=======
-=======
->>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 		world.addChild(reward.shape);*/
 
 		//****COLLISION LOGICA*******/
 		/*boxes.push(box1, box2, box3, box4, box5, box6, box7, box8, box9, box10, box11, box12, movingBox1, movingBox2, movingBox3);
 		deathzones.push(deathzone1, deathzone2);*/
-<<<<<<< HEAD
->>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
-=======
->>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 
 
 		//*******CAMERA LOGICA******//
 		//stilstaande platforms + deathzones
-<<<<<<< HEAD
-<<<<<<< HEAD
-		cameras[0].push(box1, box2, box3, box4, box5, box6, box7, box8, box9, box10, box11, box12, deathzone1, deathzone2);
-
-		//bewegende platforms
-		cameras[1].push(movingBox1, movingBox2, movingBox3);
-
-		initCameras();
-=======
-=======
->>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 		//cameras[0].push(box1, box2, box3, box4, box5, box6, box7, box8, box9, box10, box11, box12, deathzone1, deathzone2);
 
 		//bewegende platforms
 		//cameras[1].push(movingBox1, movingBox2, movingBox3);
 
 		//initCameras();
-<<<<<<< HEAD
->>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
-=======
->>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 	}
 
 	function initCameras(){
@@ -360,11 +287,6 @@ var App = (function(){
 			cameraVisibilities[cameraNumber] = visibility;
 		}
 	}
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 
 	var mapDataJson = { "backgroundcolor":"#4bbeda",
  "height":20,
@@ -450,10 +372,6 @@ var App = (function(){
  "version":1,
  "width":30
 };
-<<<<<<< HEAD
->>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
-=======
->>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 	return App;
 
 })();
@@ -786,16 +704,107 @@ var World =(function(){
 
 })();
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 /*globals App:true*/
-var app = new App();
 
->>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
-=======
-/*globals App:true*/
-var app = new App();
+(function()
+{
+	var menuItems = ["PLAY","LEVELS","SCORES"];
+	var timer = 0;
 
->>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
+
+	function init()
+	{
+		menu();
+
+		setInterval(function(){
+			animation();
+		},1000);
+	}
+
+	function animation()
+	{
+		if(timer < 9)
+		{
+			$("#guy").attr("src","images/guyNormal.png");
+			timer +=1;
+		}
+		else if(timer === 9)
+		{
+			$("#guy").attr("src","images/guyDrink.png");
+			timer = 0;
+		}
+		
+	}
+
+	function menu()
+	{
+		$("#previous").click(function(){
+
+			switch($(this).next().html())
+			{
+				case menuItems[0]:
+					$(this).next().html(menuItems[2]);
+				break;
+
+				case menuItems[1]:
+					$(this).next().html(menuItems[0]);
+				break;
+
+				case menuItems[2]:
+					$(this).next().html(menuItems[1]);
+				break;
+			}
+		});
+
+		$("#next").click(function(){
+
+			switch($(this).prev().html())
+			{
+				case menuItems[0]:
+					$(this).prev().html(menuItems[1]);
+				break;
+
+				case menuItems[1]:
+					$(this).prev().html(menuItems[2]);
+				break;
+
+				case menuItems[2]:
+					$(this).prev().html(menuItems[0]);
+				break;
+			}
+		});
+
+		$("li").click(function(){
+			switch($(this).html())
+			{
+				case menuItems[0]:
+					console.log("play game");
+					$("#menu").remove();
+					$("canvas").css("display","block");
+					startGame();
+				break;
+
+				case menuItems[1]:
+					console.log("select level");
+				break;
+
+				case menuItems[2]:
+					console.log("leaderbord");
+				break;
+			}
+		});
+
+	}
+
+	function startGame()
+	{
+		var app = new App();
+	}
+
+init();
+
+})();
+
+
+
 })();

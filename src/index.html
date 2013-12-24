@@ -2,15 +2,32 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>BEST GAME EVER</title>
+	<title>Lame Office Guy</title>
 	<link rel="stylesheet" type="text/css" href="screen.css" />
 </head>
 <body>
-	<p>'A' en 'Z' switchen cameras. Je hebt <span id="aantal">0</span> keren van camera gewisseld.</p>
-	<canvas id="cnvs" width="1024" height="700">
-		<p>Als u niets te zijn krijgt ben je bezig op een commodore 64.</p>
-	</canvas>
 
+<div id="menu">
+	<ul>
+	<label id="previous">&nbsp;</label>
+		<li>PLAY</li>
+	<label id="next">&nbsp;</label>
+	</ul>
+
+	<img id="logo" src="images/logo.png" />
+	<img id="guy" src="images/guyDrink.png" />
+
+	<audio loop="loop" autoplay="autoplay">
+  		<source src="audio/office.ogg" type="audio/ogg">
+  		<source src="audio/office.mp3" type="audio/mpeg">
+		Your browser does not support the audio element.
+	</audio>
+</div>
+	
+
+	<canvas id="cnvs" width="1440" height="900">&nbsp;</canvas>
+
+	<script type="text/javascript" src="js/vendor/jquery.js"></script>
 	<script type="text/javascript" src="js/vendor/easeljs.js"></script>
 	<script type="text/javascript" src="js/vendor/tweenjs.js"></script>
 	<script type="text/javascript" src="js/main.js"></script>
