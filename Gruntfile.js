@@ -1,4 +1,4 @@
-var jspaths = ['src/js-dev/Util.js','src/js-dev/app.js', 'src/js-dev/classes/*.js'];
+var jspaths = ['src/js-dev/Util.js','src/js-dev/app.js', 'src/js-dev/classes/*.js', 'src/js-dev/main.js'];
 var csspaths = ["src/sass/*.scss"];
 
 var concatpaths = ['src/js/templates.js'].concat(jspaths);
