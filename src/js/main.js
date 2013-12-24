@@ -2,7 +2,11 @@
 
 /*globals stage:true, Bound:true, Platform:true, CollisionDetection:true, 
 <<<<<<< HEAD
+<<<<<<< HEAD
 MovingPlatform:true, MovingPlatformUP:true, createjs:true, Reward:true, World:true, Player:true*/
+=======
+MovingPlatform:true, MovingPlatformUP:true, createjs:true, Reward:true, World:true, Player:true, Image:true*/
+>>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 =======
 MovingPlatform:true, MovingPlatformUP:true, createjs:true, Reward:true, World:true, Player:true, Image:true*/
 >>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
@@ -16,15 +20,21 @@ var App = (function(){
 	var aantalSwitches;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	function App(){
 
 		console.log("hlalala");
 =======
+=======
+>>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 	var tileset;
 	var mapData;
 
 	function App(){
 		console.log('hello world');
+<<<<<<< HEAD
+>>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
+=======
 >>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 
 		boxes = [];
@@ -174,9 +184,12 @@ var App = (function(){
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	function buildPlatforms() {
 		var box1 = new Platform(0, height-40 ,200, 40, '#000000');
 =======
+=======
+>>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 	function initLayers() {
 		var w = mapData.tilesets[0].tilewidth;
 		var h = mapData.tilesets[0].tileheight;
@@ -221,6 +234,9 @@ var App = (function(){
 		tileset.onLoad = initLayers();
 
 		/*var box1 = new Platform(0, height-40 ,200, 40, '#000000');
+<<<<<<< HEAD
+>>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
+=======
 >>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 		var box2 = new Platform(500, height-40, 200, 40, '#000000');
 		var box3 = new Platform(700, 40, 150, height-40, '#000000');
@@ -248,15 +264,21 @@ var App = (function(){
 
 		var deathzone1 = new Platform(200, height - 40, 300, 40, '#ff0000');
 <<<<<<< HEAD
+<<<<<<< HEAD
 		var deathzone2 = new Platform(0, height - 260, 580, 60, '#ff0000');
 
 		//******VISUEEL WEERGEVEN****////
 		world.addChild(box1.shape);
 =======
+=======
+>>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 		var deathzone2 = new Platform(0, height - 260, 580, 60, '#ff0000');*/
 
 		//******VISUEEL WEERGEVEN****////
 		/*world.addChild(box1.shape);
+<<<<<<< HEAD
+>>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
+=======
 >>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 		world.addChild(box2.shape);
 		world.addChild(box3.shape);
@@ -275,22 +297,29 @@ var App = (function(){
 		world.addChild(movingBox2.shape);
 		world.addChild(movingBox3.shape);
 <<<<<<< HEAD
+<<<<<<< HEAD
 		world.addChild(reward.shape);
 
 		//****COLLISION LOGICA*******/
 		boxes.push(box1, box2, box3, box4, box5, box6, box7, box8, box9, box10, box11, box12, movingBox1, movingBox2, movingBox3);
 		deathzones.push(deathzone1, deathzone2);
 =======
+=======
+>>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 		world.addChild(reward.shape);*/
 
 		//****COLLISION LOGICA*******/
 		/*boxes.push(box1, box2, box3, box4, box5, box6, box7, box8, box9, box10, box11, box12, movingBox1, movingBox2, movingBox3);
 		deathzones.push(deathzone1, deathzone2);*/
+<<<<<<< HEAD
+>>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
+=======
 >>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 
 
 		//*******CAMERA LOGICA******//
 		//stilstaande platforms + deathzones
+<<<<<<< HEAD
 <<<<<<< HEAD
 		cameras[0].push(box1, box2, box3, box4, box5, box6, box7, box8, box9, box10, box11, box12, deathzone1, deathzone2);
 
@@ -299,12 +328,17 @@ var App = (function(){
 
 		initCameras();
 =======
+=======
+>>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 		//cameras[0].push(box1, box2, box3, box4, box5, box6, box7, box8, box9, box10, box11, box12, deathzone1, deathzone2);
 
 		//bewegende platforms
 		//cameras[1].push(movingBox1, movingBox2, movingBox3);
 
 		//initCameras();
+<<<<<<< HEAD
+>>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
+=======
 >>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 	}
 
@@ -327,7 +361,10 @@ var App = (function(){
 		}
 	}
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 
 	var mapDataJson = { "backgroundcolor":"#4bbeda",
  "height":20,
@@ -413,6 +450,9 @@ var App = (function(){
  "version":1,
  "width":30
 };
+<<<<<<< HEAD
+>>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
+=======
 >>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 	return App;
 
@@ -747,6 +787,12 @@ var World =(function(){
 })();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+/*globals App:true*/
+var app = new App();
+
+>>>>>>> e1a9caac875f4395d09fae12e342826f14e405ec
 =======
 /*globals App:true*/
 var app = new App();
