@@ -8,13 +8,12 @@ var App = (function(){
 	var deathzones;
 	var cameras, cameraVisibilities;
 	var aantalSwitches;
+	var mapDataJson;
 
 	var tileset;
 	var mapData;
 
 	function App(){
-		console.log('hello world');
-
 		boxes = [];
 		movingboxes = [];
 		keys = [];
@@ -26,8 +25,7 @@ var App = (function(){
 		aantalSwitches = 0;
 		cameraVisibilities = [];
 		stage = new createjs.Stage('cnvs');
-		console.log(new World(1024, 700));
-		world = new World(1024, 700);
+		world = new World(1200, 800);
 
 		//dimensions van het canvas
 		width = stage.canvas.width;
@@ -38,7 +36,7 @@ var App = (function(){
 		buildBounds();
 		buildPlatforms();
 		//aanmaken player + adden
-		player = new Player(10, world.height - 100, 20, 20);
+		player = new Player(50, world.height - 200, 20, 20);
 		player.gravity = world.gravity;
 		player.friction = world.friction;
 		world.addChild(player.shape);
@@ -104,24 +102,24 @@ var App = (function(){
 
 			case "l":
 				player.velX = 0;
-				player.x = 20;
-				player.y = world.height-80;
+				player.x = 50;
+				player.y = world.height - 200;
 			break;
 			case "r":
 				player.velX = 0;
-				player.x = 20;
-				player.y = world.height-80;
+				player.x = 50;
+				player.y = world.height - 200;
 			break;
 			case "t":
 				player.velY *= -1;
-				player.x = 20;
-				player.y = world.height-80;
+				player.x = 50;
+				player.y = world.height - 200;
 			break;
 			case "b":
 				player.grounded = true;
 				player.jumping = false;
-				player.x = 20;
-				player.y = world.height-80;
+				player.x = 50;
+				player.y = world.height - 200;
 			break;
 			}
 		}
@@ -134,17 +132,29 @@ var App = (function(){
 		keys[event.keyCode] = true;
 
 		if(event.keyCode === 90){
-			updateCameras(0, false);
-			updateCameras(1, true);
+			for (var i = 0; i < cameras[1].length; i++)
+			{
+				cameras[1][i].setVisibility(true);
+			}
+			for (var d = 0; i < cameras[0].length; d++)
+			{
+				cameras[0][d].alpha = 0;
+			}
 			aantalSwitches++;
-		document.getElementById("aantal").innerHTML = aantalSwitches;
+		//document.getElementById("aantal").innerHTML = aantalSwitches;
 		}
 
 		if(event.keyCode === 65){
-			updateCameras(0, true);
-			updateCameras(1, false);
+			for (var r = 0; r < cameras[1].length; r++)
+			{
+				cameras[1][r].setVisibility(false);
+			}
+			for (var p = 0; p < cameras[0].length; p++)
+			{
+				cameras[0][p].alpha = 1;
+			}
 			aantalSwitches++;
-		document.getElementById("aantal").innerHTML = aantalSwitches;
+		//document.getElementById("aantal").innerHTML = aantalSwitches;
 		}
 	}
 
@@ -157,8 +167,6 @@ var App = (function(){
 		boxes.push(new Bound(0, 0, world.width, 1));
 		boxes.push(new Bound(0, 0, 1, world.height));
 		boxes.push(new Bound(world.width-1, 0, 1, world.height));
-
-		console.log(boxes);
 	}
 
 	function initLayers() {
@@ -186,13 +194,37 @@ var App = (function(){
 	function initLayer(layerData, tilesetSheet, tilewidth, tileheight) {
 		for (var y = 0; y < layerData.height; y++) {
 			for ( var x = 0; x < layerData.width; x++) {
-				var cellBitmap = new createjs.BitmapAnimation(tilesetSheet);
+				var cellBitmap = new createjs.Sprite(tilesetSheet);
 				var idx = x + y * layerData.width;
 				cellBitmap.gotoAndStop(layerData.data[idx] - 1);
 				cellBitmap.x = x * tilewidth;
 				cellBitmap.y = y * tilewidth;
+				console.log(cellBitmap);
+				
+
 			// add bitmap to stage
-			stage.addChild(cellBitmap);
+			world.addChild(cellBitmap);
+			cameras[0].push(cellBitmap);
+
+
+			/*LOGICA TILED KOPPELEN AAN COLLISIONDETECTION, DEADZONE, EN MOVING PLATFORM*/
+
+				if(layerData.data[idx] !== 0)
+				{
+					switch (layerData.name)
+					{
+						case "World":
+							var boxWorld = new Platform(cellBitmap.x,cellBitmap.y ,50, 50);
+							boxes.push(boxWorld);
+						break;
+
+						case "Death":
+							var boxDeath = new Platform(cellBitmap.x,cellBitmap.y ,50, 50);
+							deathzones.push(boxDeath);
+						break;
+
+					}
+				}
 			}
 		}
 	}
@@ -204,57 +236,57 @@ var App = (function(){
 		tileset.src = mapData.tilesets[0].image;
 		tileset.onLoad = initLayers();
 
-		/*var box1 = new Platform(0, height-40 ,200, 40, '#000000');
-		var box2 = new Platform(500, height-40, 200, 40, '#000000');
-		var box3 = new Platform(700, 40, 150, height-40, '#000000');
+		//var box1 = new Platform(0, height-40 ,200, 40, '#000000');
+		//var box2 = new Platform(500, height-40, 200, 40, '#000000');
+		//var box3 = new Platform(700, 40, 150, height-40, '#000000');
 		
-		var box4 = new Platform(580, height-280, 20, 140, '#000000');
-		var box5 = new Platform(0, height - 200, 580, 60, '#000000');
+		//var box4 = new Platform(580, height-280, 20, 140, '#000000');
+		//var box5 = new Platform(0, height - 200, 580, 60, '#000000');
 
-		var box10 = new Platform(100, height - 370, 100, 20, '#000000');
-		var box11 = new Platform(80, 0, 20, 350, '#000000');
-		var box12 = new Platform(250, height - 330, 50, 20, '#000000');
+		//var box10 = new Platform(100, height - 370, 100, 20, '#000000');
+		//var box11 = new Platform(80, 0, 20, 350, '#000000');
+		//var box12 = new Platform(250, height - 330, 50, 20, '#000000');
 
 
 		//ladder
-		var box6 = new Platform(650, height -100, 50, 20, '#000000');
-		var box7 = new Platform(600, height -160, 50, 20, '#000000');
-		var box8 = new Platform(650, height -220, 50, 20, '#000000');
-		var box9 = new Platform(600, height -280, 50, 20, '#000000');
+		//var box6 = new Platform(650, height -100, 50, 20, '#000000');
+		//var box7 = new Platform(600, height -160, 50, 20, '#000000');
+		//var box8 = new Platform(650, height -220, 50, 20, '#000000');
+		//var box9 = new Platform(600, height -280, 50, 20, '#000000');
 
 		//Rewards
-		var reward = new Reward(10, 10, 15, "#ffd700");
+		//var reward = new Reward(10, 10, 15, "#ffd700");
 
-		var movingBox1 = new MovingPlatform(500, height - 100, 100, 20, '#00ff00', 180, 450, 'l', 3000);
-		var movingBox2 = new MovingPlatform(80, height - 310, 100, 20, '#00ff00', 80, 500, 'r', 4500);
-		var movingBox3 = new MovingPlatformUP(0, height - 310, 80, 20, '#00ff00', height - 310, 50, 'u', 4500);
+		var movingBox1 = new MovingPlatform(850, world.height - 150, 100, 15, '#E3D3C6', 300, 850, 'l', 5000);
+		//var movingBox2 = new MovingPlatform(80, height - 310, 100, 20, '#00ff00', 80, 500, 'r', 4500);
+		//var movingBox3 = new MovingPlatformUP(0, height - 310, 80, 20, '#00ff00', height - 310, 50, 'u', 4500);
 
-		var deathzone1 = new Platform(200, height - 40, 300, 40, '#ff0000');
-		var deathzone2 = new Platform(0, height - 260, 580, 60, '#ff0000');*/
+		//var deathzone1 = new Platform(200, height - 40, 300, 40, '#ff0000');
+		//var deathzone2 = new Platform(0, height - 260, 580, 60, '#ff0000');
 
 		//******VISUEEL WEERGEVEN****////
-		/*world.addChild(box1.shape);
-		world.addChild(box2.shape);
-		world.addChild(box3.shape);
-		world.addChild(box4.shape);
-		world.addChild(box5.shape);
-		world.addChild(box6.shape);
-		world.addChild(box7.shape);
-		world.addChild(box8.shape);
-		world.addChild(box9.shape);
-		world.addChild(box10.shape);
-		world.addChild(box11.shape);
-		world.addChild(box12.shape);
-		world.addChild(deathzone1.shape);
-		world.addChild(deathzone2.shape);
-		world.addChild(movingBox1.shape);
-		world.addChild(movingBox2.shape);
-		world.addChild(movingBox3.shape);
-		world.addChild(reward.shape);*/
+		//world.addChild(box1.shape);
+		//world.addChild(box2.shape);
+		//world.addChild(box3.shape);
+		//world.addChild(box4.shape);
+		//world.addChild(box5.shape);
+		//world.addChild(box6.shape);
+		//world.addChild(box7.shape);
+		//world.addChild(box8.shape);
+		//world.addChild(box9.shape);
+		//world.addChild(box10.shape);
+		//world.addChild(box11.shape);
+		//world.addChild(box12.shape);
+		//world.addChild(deathzone1.shape);
+		//world.addChild(deathzone2.shape);
+		stage.addChild(movingBox1.shape);
+		//world.addChild(movingBox2.shape);
+		//world.addChild(movingBox3.shape);
+		//world.addChild(reward.shape);
 
 		//****COLLISION LOGICA*******/
-		/*boxes.push(box1, box2, box3, box4, box5, box6, box7, box8, box9, box10, box11, box12, movingBox1, movingBox2, movingBox3);
-		deathzones.push(deathzone1, deathzone2);*/
+		boxes.push(movingBox1);
+		//deathzones.push(deathzone1, deathzone2);
 
 
 		//*******CAMERA LOGICA******//
@@ -262,9 +294,14 @@ var App = (function(){
 		//cameras[0].push(box1, box2, box3, box4, box5, box6, box7, box8, box9, box10, box11, box12, deathzone1, deathzone2);
 
 		//bewegende platforms
-		//cameras[1].push(movingBox1, movingBox2, movingBox3);
+		cameras[1].push(movingBox1);
 
-		//initCameras();
+		for(var i = 0; i<deathzones.length; i++)
+		{
+			deathzones[i].setVisibility(false);
+		}
+
+		initCameras();
 	}
 
 	function initCameras(){
@@ -273,25 +310,38 @@ var App = (function(){
 		cameraVisibilities[1] = false;
 		console.log(cameras);
 
-		for (var i = 0; i < cameras[1].length; i++){
+		for (var i = 0; i < cameras[1].length; i++)
+		{
 			cameras[1][i].setVisibility(false);
 		}
 	}
 
 	function updateCameras(cameraNumber, visibility){
 
-		for(var i = 0; i < cameras[cameraNumber].length; i++){
+		for(var i = 0; i < cameras[cameraNumber].length; i++)
+		{
 			cameras[cameraNumber][i].setVisibility(visibility);
 			cameraVisibilities[cameraNumber] = visibility;
 		}
 	}
 
-	var mapDataJson = { "height":16,
+	mapDataJson = { "height":16,
  "layers":[
         {
-         "data":[28, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 28, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 11, 0, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 28, 15, 15, 15, 15, 15, 15, 0, 18, 15, 15, 15, 15, 15, 15, 15, 15, 15, 19, 0, 0, 0, 0, 12, 11, 0, 0, 0, 0, 0, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 12, 11, 0, 0, 0, 0, 0, 17, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 11, 0, 0, 0, 14, 0, 0, 0, 5, 15, 15, 15, 15, 15, 21, 21, 21, 21, 8, 0, 0, 0, 0, 12, 11, 0, 0, 0, 6, 15, 15, 15, 7, 0, 0, 0, 0, 0, 12, 28, 28, 28, 11, 0, 0, 1, 1, 12, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 16, 0, 0, 1, 12, 28, 28, 28, 11, 0, 0, 0, 0, 12, 11, 0, 0, 0, 1, 1, 0, 0, 0, 0, 14, 0, 0, 0, 12, 28, 28, 28, 11, 1, 1, 0, 0, 12, 28, 25, 26, 26, 26, 26, 26, 26, 26, 27, 11, 0, 0, 1, 12, 28, 28, 28, 11, 0, 0, 0, 0, 12, 28, 13, 13, 13, 13, 13, 13, 13, 13, 13, 7, 2, 3, 0, 12, 28, 28, 28, 11, 0, 0, 0, 0, 12, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 6, 13, 13, 13, 7, 0, 0, 20, 0, 12, 11, 0, 0, 0, 0, 0, 0, 1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 12, 28, 21, 23, 21, 24, 22, 25, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 27, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28],
+         "data":[28, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 28, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 11, 0, 0, 28, 28, 28, 0, 28, 28, 28, 0, 28, 28, 28, 0, 28, 28, 28, 0, 28, 28, 0, 0, 12, 11, 0, 0, 0, 28, 0, 0, 28, 0, 0, 0, 28, 0, 0, 0, 0, 28, 0, 0, 28, 28, 0, 0, 12, 11, 0, 0, 0, 28, 0, 0, 28, 28, 28, 0, 28, 28, 28, 0, 0, 28, 0, 0, 28, 28, 0, 0, 12, 11, 0, 0, 0, 28, 0, 0, 28, 0, 0, 0, 0, 0, 28, 0, 0, 28, 0, 0, 0, 0, 0, 0, 12, 11, 0, 0, 0, 28, 0, 0, 28, 28, 28, 0, 28, 28, 28, 0, 0, 28, 0, 0, 28, 28, 0, 0, 12, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 11, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12, 28, 21, 23, 21, 24, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 21, 21, 23, 21, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28],
          "height":16,
-         "name":"Tile Layer 1",
+         "name":"World",
+         "opacity":1,
+         "type":"tilelayer",
+         "visible":true,
+         "width":24,
+         "x":0,
+         "y":0
+        },
+        {
+         "data":[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 27, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+         "height":16,
+         "name":"Death",
          "opacity":1,
          "type":"tilelayer",
          "visible":true,
@@ -325,6 +375,7 @@ var App = (function(){
  "version":1,
  "width":24
 };
+
 	return App;
 
 })();

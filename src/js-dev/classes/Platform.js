@@ -15,7 +15,7 @@ var Platform = (function(){
 
 	Platform.prototype.draw = function() {
 		this.shape.graphics.c();
-		this.shape.graphics.f(this.color);
+		//this.shape.graphics.f(this.color);
 		this.shape.graphics.dr(0, 0, this.width, this.height);
 		this.shape.graphics.ef();
 	};
