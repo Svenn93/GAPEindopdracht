@@ -1,5 +1,5 @@
 var jspaths = ['src/js-dev/Util.js','src/js-dev/app.js', 'src/js-dev/classes/*.js', 'src/js-dev/main.js'];
-var csspaths = ["src/sass/*.scss"];
+var csspaths = ["src/*.css"];
 
 var concatpaths = ['src/js/templates.js'].concat(jspaths);
 
@@ -45,7 +45,7 @@ module.exports = function(grunt) {
           {
             expand: true,
             cwd: 'src/',
-            src: ['index.html','images/*','js/vendor/*'],
+            src: ['index.html','images/*','js/vendor/*', 'fonts/*', 'audio/*', 'maps/*', 'screen.css'],
             dest: 'out/'
           }
         ]

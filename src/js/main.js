@@ -3,7 +3,7 @@
 /*globals stage:true, Bound:true, Platform:true, CollisionDetection:true, 
 MovingPlatform:true, MovingPlatformUP:true, createjs:true, Reward:true, World:true, Player:true, Image:true*/
 var App = (function(){
-
+	
 	var boxes, movingboxes, player, keys, width, height, x;
 	var ticker;
 	var world;
