@@ -171,75 +171,11 @@ var App = (function(){
 		boxes.push(new Bound(world.width-1, 0, 1, world.height));
 	}
 
-	function initLayers() {
-		var w = mapData.tilesets[0].tilewidth;
-		var h = mapData.tilesets[0].tileheight;
-		var imageData = {
-			images: [ tileset ],
-			frames: {
-				width: w,
-				height: h
-			}
-		};
-
-		var tilesetSheet = new createjs.SpriteSheet(imageData);
-
-		for(var idx = 0; idx < mapData.layers.length; idx++) {
-			var layerData = mapData.layers[idx];
-			if(layerData.type === "tilelayer"){
-				initLayer(layerData, tilesetSheet, mapData.tilewidth, mapData.tileheight);
-			}
-		}
-	}
-
-
-	function initLayer(layerData, tilesetSheet, tilewidth, tileheight) {
-		for (var y = 0; y < layerData.height; y++) {
-			for ( var x = 0; x < layerData.width; x++) {
-				var cellBitmap = new createjs.Sprite(tilesetSheet);
-				var idx = x + y * layerData.width;
-				cellBitmap.gotoAndStop(layerData.data[idx] - 1);
-				cellBitmap.x = x * tilewidth;
-				cellBitmap.y = y * tilewidth;
-				console.log(cellBitmap);
-				
-
-			// add bitmap to stage
-			world.addChild(cellBitmap);
-			cameras[0].push(cellBitmap);
-
-
-			/*LOGICA TILED KOPPELEN AAN COLLISIONDETECTION, DEADZONE, EN MOVING PLATFORM*/
-
-				if(layerData.data[idx] !== 0)
-				{
-					switch (layerData.name)
-					{
-						case "World":
-							var boxWorld = new Platform(cellBitmap.x,cellBitmap.y ,50, 50);
-							boxes.push(boxWorld);
-						break;
-
-						case "Death":
-							var boxDeath = new Platform(cellBitmap.x,cellBitmap.y ,50, 50);
-							deathzones.push(boxDeath);
-						break;
-
-					}
-				}
-			}
-		}
-	}
+	
 	function buildPlatforms() {
 		/**TILED EXPERIMENTJE**/
-		$.getJSON('../maps/level1/level1.json', function(data){
-			console.log('gelukt');
-		});
-		//mapData = mapDataJson;
-		tileset = new Image();
-		tileset.src = mapData.tilesets[0].image;
-		tileset.onLoad = initLayers();
-
+		$.getJSON('maps/level1/level1.json', jsonLoaded);
+		
 		//var box1 = new Platform(0, height-40 ,200, 40, '#000000');
 		//var box2 = new Platform(500, height-40, 200, 40, '#000000');
 		//var box3 = new Platform(700, 40, 150, height-40, '#000000');
@@ -306,6 +242,75 @@ var App = (function(){
 		}
 
 		initCameras();
+	}
+
+	function jsonLoaded( data ) {
+		mapData = data;
+		tileset = new Image();
+		tileset.src = mapData.tilesets[0].image;
+		tileset.onLoad = initLayers();
+	}
+
+	function initLayers() {
+		var w = mapData.tilesets[0].tilewidth;
+		var h = mapData.tilesets[0].tileheight;
+		var imageData = {
+			images: [ tileset ],
+			frames: {
+				width: w,
+				height: h
+			}
+		};
+
+		console.log('ImageData: ', imageData);
+
+		var tilesetSheet = new createjs.SpriteSheet(imageData);
+
+		for(var idx = 0; idx < mapData.layers.length; idx++) {
+			var layerData = mapData.layers[idx];
+			if(layerData.type === "tilelayer"){
+				initLayer(layerData, tilesetSheet, mapData.tilewidth, mapData.tileheight);
+			}
+		}
+	}
+
+
+	function initLayer(layerData, tilesetSheet, tilewidth, tileheight) {
+		for (var y = 0; y < layerData.height; y++) {
+			for ( var x = 0; x < layerData.width; x++) {
+				var cellBitmap = new createjs.Sprite(tilesetSheet);
+				var idx = x + y * layerData.width;
+				cellBitmap.gotoAndStop(layerData.data[idx] - 1);
+				cellBitmap.x = x * tilewidth;
+				cellBitmap.y = y * tilewidth;
+				console.log(cellBitmap);
+				
+
+			// add bitmap to stage
+			world.addChild(cellBitmap);
+			cameras[0].push(cellBitmap);
+
+
+			/*LOGICA TILED KOPPELEN AAN COLLISIONDETECTION, DEADZONE, EN MOVING PLATFORM*/
+
+			if(layerData.data[idx] !== 0)
+			{
+				switch (layerData.name)
+				{
+					case "World":
+						var boxWorld = new Platform(cellBitmap.x,cellBitmap.y ,50, 50);
+						boxes.push(boxWorld);
+					break;
+
+					case "Death":
+						var boxDeath = new Platform(cellBitmap.x,cellBitmap.y ,50, 50);
+						deathzones.push(boxDeath);
+					break;
+
+				}
+			}
+			}
+		}
 	}
 
 	function initCameras(){
