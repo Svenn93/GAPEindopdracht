@@ -1,7 +1,7 @@
 (function(){
 
 /*globals stage:true, Bound:true, Platform:true, CollisionDetection:true, 
-MovingPlatform:true, MovingPlatformUP:true, createjs:true, Reward:true, World:true, Player:true, Image:true*/
+MovingPlatform:true, MovingPlatformUP:true, createjs:true, FPSMeter:true, Reward:true, Physics:true, Player:true, Image:true*/
 var App = (function(){
 
 	var boxes, movingboxes, player, keys, width, height, x;
@@ -15,8 +15,12 @@ var App = (function(){
 	var mapData;
 
 	var currentLevel;
+	var square;
+
+	var meter;
 
 	function App(){
+		meter = new FPSMeter();
 		boxes = [];
 		movingboxes = [];
 		keys = [];
@@ -30,34 +34,49 @@ var App = (function(){
 		currentLevel = 1;
 
 		stage = new createjs.Stage('cnvs');
-		world = new World(1200, 800);
+		//nieuwe wereld
+		world = Physics();
 
-		//dimensions van het canvas
 		width = stage.canvas.width;
 		height = stage.canvas.height;
-		world.boundH = -(world.height-height);
-		world.boundW = -(world.width-width);
 
-		buildBounds();
+		//bounds van de wereld
+		var bounds = Physics.aabb(0, 0, width, height);
+
+		//zwaartekracht van de wereld
+		var gravity = Physics.behavior('constant-acceleration', {
+			acc:{x:0, y:0.0004}
+		});
+		world.add(gravity);
+
+		//restitution: hardheid vloeg (trampoline vs beton)
+		var edge = Physics.behavior('edge-collision-detection', {
+			aabb:bounds,
+			restitution: 0.3
+		});
+		world.add(edge);
+
+		world.add(Physics.behavior('body-collision-detection'));
+		world.add(Physics.behavior('sweep-prune'));
+		world.add(Physics.behavior('body-impulse-response'));
+			
 		buildLevel();
 		//aanmaken player + adden
-		player = new Player(50, world.height - 200, 20, 20);
+		player = new Player(200, 200, 20, 20);
 		player.gravity = world.gravity;
-		player.friction = world.friction;
-		world.addChild(player.shape);
+		//world.addChild(player.shape);
 		//ticker, voor stage refresh.
-		ticker = createjs.Ticker;
-		ticker.setFPS('60');
-		ticker.addEventListener("tick", update);
+		Physics.util.ticker.subscribe(update);
+		Physics.util.ticker.start();
 
 		window.onkeydown = keydown;
 		window.onkeyup = keyup;
 
-		stage.addChild(world.container);
+		//stage.addChild(world.container);
 	}
 
-	function update() {
-
+	function update(time, dt) {
+		meter.tickStart();
 		if(keys[37]){
 			//links
 			if(player.velX > -player.speed){
@@ -81,9 +100,9 @@ var App = (function(){
 			}
 		}
 
-		player.grounded = false;
+		//player.grounded = false;
 
-		for (var i = 0; i < boxes.length ; i++) {
+		/*for (var i = 0; i < boxes.length ; i++) {
 			
 			switch(CollisionDetection.checkCollision(player, boxes[i])){
 			case "l":
@@ -127,9 +146,18 @@ var App = (function(){
 				player.y = world.height - 200;
 			break;
 			}
-		}
+		}*/
+		//player.update();
+		world.step(time);
+		updateCanvas();
+		meter.tick();
+	}
 
-		player.update();
+	function updateCanvas() {
+		for(var i = 0; i < world._bodies.length; i++){
+			var body = world._bodies[i];
+			stage.getChildByName(body.view).obj.update(body);
+		}
 		stage.update();
 	}
 
@@ -141,7 +169,7 @@ var App = (function(){
 			{
 				cameras[1][i].setVisibility(true);
 			}
-			for (var d = 0; i < cameras[0].length; d++)
+			for (var d = 0; d < cameras[0].length; d++)
 			{
 				cameras[0][d].alpha = 0;
 			}
@@ -213,15 +241,41 @@ var App = (function(){
 				initLayer(layerData, tilesetSheet, mapData.tilewidth, mapData.tileheight);
 			}
 		}
-		var movingBox1 = new MovingPlatform(850, world.height - 150, 100, 15, '#E3D3C6', 300, 850, 'l', 5000);
+
+		/** DE MOVING PLATFORMS WORDEN VOORLOPIG HANDMATIG TOEGEVOEGD **/
+		/*var movingBox1 = new MovingPlatform(850, world.height - 150, 100, 15, '#E3D3C6', 300, 850, 'l', 5000);
 		boxes.push(movingBox1);
 		stage.addChild(movingBox1.shape);
-		cameras[1].push(movingBox1);
-		initCameras();
+		//cameras[1].push(movingBox1);
+		//initCameras();
+		console.log('alle boxes gemaakt');*/
+
+		var boxWorld = new Platform(100,100,50, 50, '#0000FF', 'test');
+		stage.addChild(boxWorld.displayobject);
+
+		var boxWorldobj = Physics.body('convex-polygon', {
+			x:100,
+			y:100,
+			vx:0.3,
+			vertices: [
+				{x: 0, y: 50},
+				{x: 50, y: 50},
+				{x: 50, y: 0},
+				{x: 0, y: 0}
+			],
+			cof:0.8,
+			mass: 1,
+			restitution: 0,
+			fixed:false,
+			view: 'test'
+		});
+		world.add(boxWorldobj);
+
 	}
 
 
 	function initLayer(layerData, tilesetSheet, tilewidth, tileheight) {
+		var platformteller= 0;
 		for (var y = 0; y < layerData.height; y++) {
 			for ( var x = 0; x < layerData.width; x++) {
 				var cellBitmap = new createjs.Sprite(tilesetSheet);
@@ -229,30 +283,57 @@ var App = (function(){
 				cellBitmap.gotoAndStop(layerData.data[idx] - 1);
 				cellBitmap.x = x * tilewidth;
 				cellBitmap.y = y * tilewidth;
-				console.log(cellBitmap);
 				
+				/** VISUEEL DE TILES WEERGEVEN **/
 				// add bitmap to stage
-				world.addChild(cellBitmap);
-				cameras[0].push(cellBitmap);
-
-
-				/*LOGICA TILED KOPPELEN AAN COLLISIONDETECTION, DEADZONE, EN MOVING PLATFORM*/
+				//cameras[0].push(cellBitmap);
+				//stage.addChild(cellBitmap);
+				console.log('Cellbitmap: ', cellBitmap.x, cellBitmap.y);
+				//TODO: cellbitmap koppelen ana de view van de Physics body;
+				/** COLLISION LOGICA, OBJECTEN '''NIET''' TOEVOEGEN AAN STAGE (enkel voor developement)**/
 				if(layerData.data[idx] !== 0)
 				{
+					platformteller++;
+		
 					switch (layerData.name)
 					{
 						case "World":
-							var boxWorld = new Platform(cellBitmap.x,cellBitmap.y ,50, 50);
-							boxes.push(boxWorld);
+							var name = "platform" + platformteller;
+
+							var boxWorld = new Platform(cellBitmap.x,cellBitmap.y ,50, 50, '#00FF00', name);
+							stage.addChild(boxWorld.displayobject);
+
+							var boxWorldobj = Physics.body('convex-polygon', {
+								x:cellBitmap.x,
+								y:cellBitmap.y,
+								vertices: [
+									{x: 0, y: 50},
+									{x: 50, y: 50},
+									{x: 50, y: 0},
+									{x: 0, y: 0}
+								],
+								cof:0.8,
+								restitution:0,
+								fixed:true,
+								mass:1,
+								view: name
+							});
+							world.add(boxWorldobj);
+							console.log("platform added");
+							//cameras[0].push(boxWorld);
 						break;
 
-						case "Death":
-							var boxDeath = new Platform(cellBitmap.x,cellBitmap.y ,50, 50);
+						/*case "Death":
+							var boxDeath = new Platform(cellBitmap.x,cellBitmap.y ,50, 50, '#FF0000');
 							deathzones.push(boxDeath);
-						break;
+							world.addChild(boxDeath.shape);
+							//cameras[0].push(boxDeath);
+						break;*/
 
 					}
 				}
+
+
 			}
 		}
 	}
@@ -465,27 +546,43 @@ var MovingPlatformUP = (function(){
 /*globals createjs:true */
 var Platform = (function(){
 	
-	function Platform(x, y, width, height, color){
+	function Platform(x, y, width, height, color, name){
 		this.x = x;
 		this.y = y;
-		this.color = color;
 		this.width = width;
 		this.height = height;
-		this.shape = new createjs.Shape();
-		this.shape.x = this.x;
-		this.shape.y = this.y;
+		this.name = name;
+		this.color = color;
+		this.displayobject = new createjs.Container();
+		this.displayobject.name = this.name;
+		this.displayobject.obj = this;
+		this.displayobject.x = this.x;
+		this.displayobject.y = this.y;
 		this.draw();
 	}
 
-	Platform.prototype.draw = function() {
-		this.shape.graphics.c();
-		//this.shape.graphics.f(this.color);
-		this.shape.graphics.dr(0, 0, this.width, this.height);
-		this.shape.graphics.ef();
+	Platform.prototype.update = function (body) {
+		this.displayobject.x = body.state.pos.get(0);
+		this.displayobject.y = body.state.pos.get(1);
+		this.displayobject.regX = this.width/2;
+		this.displayobject.regY = this.height/2;
+		var angle = body.state.angular.pos * (180/Math.PI);
+		if(angle > 360) {
+			angle = angle % 360;
+		}else if(angle < -360) {
+			angle = angle % -360;
+		}
+		this.displayobject.rotation = angle;
 	};
 
-	Platform.prototype.setVisibility = function(visible) {
-		this.shape.visible = visible;
+	Platform.prototype.draw = function() {
+		var rectangle = new createjs.Shape();
+		rectangle.graphics.c();
+		rectangle.graphics.f(this.color);
+		rectangle.graphics.dr(0, 0, this.width, this.height);
+		rectangle.graphics.ef();
+
+		this.displayobject.addChild(rectangle);
 	};
 
 	return Platform;
