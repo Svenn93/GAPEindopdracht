@@ -1,5 +1,6 @@
 /*globals stage:true, Bound:true, Platform:true, CollisionDetection:true, 
-MovingPlatform:true, MovingPlatformUP:true, createjs:true, FPSMeter:true, Reward:true, Physics:true, Player:true, Image:true*/
+MovingPlatform:true, MovingPlatformUP:true, createjs:true, FPSMeter:true, 
+Reward:true, Physics:true, Player:true, Image:true, WorldTile:true*/
 var App = (function(){
 
 	var boxes, movingboxes, player, keys, width, height, x;
@@ -15,10 +16,8 @@ var App = (function(){
 	var currentLevel;
 	var square;
 
-	var meter;
 
 	function App(){
-		meter = new FPSMeter();
 		boxes = [];
 		movingboxes = [];
 		keys = [];
@@ -74,7 +73,6 @@ var App = (function(){
 	}
 
 	function update(time, dt) {
-		meter.tickStart();
 		if(keys[37]){
 			//links
 			if(player.velX > -player.speed){
@@ -148,12 +146,12 @@ var App = (function(){
 		//player.update();
 		world.step(time);
 		updateCanvas();
-		meter.tick();
 	}
 
 	function updateCanvas() {
 		for(var i = 0; i < world._bodies.length; i++){
 			var body = world._bodies[i];
+
 			stage.getChildByName(body.view).obj.update(body);
 		}
 		stage.update();
@@ -248,20 +246,19 @@ var App = (function(){
 		//initCameras();
 		console.log('alle boxes gemaakt');*/
 
-		var boxWorld = new Platform(100,100,50, 50, '#0000FF', 'test');
+		var boxWorld = new Platform(200, 300 , 50, 50, '#0000FF', 'test');
 		stage.addChild(boxWorld.displayobject);
 
 		var boxWorldobj = Physics.body('convex-polygon', {
 			x:100,
-			y:100,
-			vx:0.3,
+			y:300,
 			vertices: [
 				{x: 0, y: 50},
 				{x: 50, y: 50},
 				{x: 50, y: 0},
 				{x: 0, y: 0}
 			],
-			cof:0.8,
+			cof:1,
 			mass: 1,
 			restitution: 0,
 			fixed:false,
@@ -279,14 +276,17 @@ var App = (function(){
 				var cellBitmap = new createjs.Sprite(tilesetSheet);
 				var idx = x + y * layerData.width;
 				cellBitmap.gotoAndStop(layerData.data[idx] - 1);
-				cellBitmap.x = x * tilewidth;
-				cellBitmap.y = y * tilewidth;
+				if(x === 0){
+					cellBitmap.x = x * tilewidth;
+					cellBitmap.y = y * tileheight;
+				}else{
+					cellBitmap.x = x * (tilewidth);
+					cellBitmap.y = y * (tileheight);
+				}
 				
 				/** VISUEEL DE TILES WEERGEVEN **/
 				// add bitmap to stage
 				//cameras[0].push(cellBitmap);
-				//stage.addChild(cellBitmap);
-				console.log('Cellbitmap: ', cellBitmap.x, cellBitmap.y);
 				//TODO: cellbitmap koppelen ana de view van de Physics body;
 				/** COLLISION LOGICA, OBJECTEN '''NIET''' TOEVOEGEN AAN STAGE (enkel voor developement)**/
 				if(layerData.data[idx] !== 0)
@@ -295,22 +295,22 @@ var App = (function(){
 		
 					switch (layerData.name)
 					{
-						case "World":
+						case "world":
 							var name = "platform" + platformteller;
 
-							var boxWorld = new Platform(cellBitmap.x,cellBitmap.y ,50, 50, '#00FF00', name);
-							stage.addChild(boxWorld.displayobject);
-
+							var worldTile = new WorldTile(cellBitmap, name, tilewidth, tileheight);
+							stage.addChild(worldTile.displayobject);
+							console.log(worldTile.displayobject.x, worldTile.displayobject.y);
 							var boxWorldobj = Physics.body('convex-polygon', {
-								x:cellBitmap.x,
-								y:cellBitmap.y,
+								x:worldTile.displayobject.x,
+								y:worldTile.displayobject.y,
 								vertices: [
-									{x: 0, y: 50},
-									{x: 50, y: 50},
-									{x: 50, y: 0},
-									{x: 0, y: 0}
+									{x: 1, y: 49},
+									{x: 49, y: 49},
+									{x: 49, y: 1},
+									{x: 1, y: 1}
 								],
-								cof:0.8,
+								cof:1,
 								restitution:0,
 								fixed:true,
 								mass:1,

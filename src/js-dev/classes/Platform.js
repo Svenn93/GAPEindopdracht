@@ -13,21 +13,25 @@ var Platform = (function(){
 		this.displayobject.obj = this;
 		this.displayobject.x = this.x;
 		this.displayobject.y = this.y;
+		
 		this.draw();
 	}
 
 	Platform.prototype.update = function (body) {
 		this.displayobject.x = body.state.pos.get(0);
 		this.displayobject.y = body.state.pos.get(1);
-		this.displayobject.regX = this.width/2;
-		this.displayobject.regY = this.height/2;
+
 		var angle = body.state.angular.pos * (180/Math.PI);
+
 		if(angle > 360) {
 			angle = angle % 360;
 		}else if(angle < -360) {
 			angle = angle % -360;
 		}
-		this.displayobject.rotation = angle;
+		//this.displayobject.rotation = angle;
+
+		
+
 	};
 
 	Platform.prototype.draw = function() {
