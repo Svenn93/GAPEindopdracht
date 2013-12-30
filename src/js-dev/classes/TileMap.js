@@ -3,6 +3,7 @@ var TileMap = (function(){
 
 	function Map(currentLevel){
 		this.currentLevel = currentLevel;
+		this.weather = "";
 		this.mapData = "";
 		this.worldtiles = [];
 		this.collisiontiles = [];
@@ -40,6 +41,7 @@ var TileMap = (function(){
 		console.log(this);
 		var w = this.mapData.tilesets[0].tilewidth;
 		var h = this.mapData.tilesets[0].tileheight;
+		this.weather = this.mapData.weather;
 		var imageData = {
 			images: [ this.tileset ],
 			frames: {
@@ -59,6 +61,10 @@ var TileMap = (function(){
 			}
 		}
 
+		if(this.weather === "snowy"){
+			console.log('het sneeuwt');
+		}
+
 		bean.fire(self, 'mapLoaded');
 
 		/** DE MOVING PLATFORMS WORDEN VOORLOPIG HANDMATIG TOEGEVOEGD **/
@@ -69,6 +75,7 @@ var TileMap = (function(){
 		//initCameras();
 		console.log('alle boxes gemaakt');*/
 	};
+
 
 	Map.prototype.initLayer = function(layerData, tilesetSheet, tilewidth, tileheight) {
 		var self=this;
