@@ -52,11 +52,10 @@ body {
 	user-select: none;
 }
 
-
 canvas{
 
 	display: none;
-	background-color: #999999;
+	background-color: #65ADB2;
 	margin-left: auto;
 	margin-right: auto;
 }

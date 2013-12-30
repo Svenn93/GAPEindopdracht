@@ -3,7 +3,7 @@ MovingPlatform:true, MovingPlatformUP:true, createjs:true, FPSMeter:true,
 bean:true, World:true, Player:true, Image:true, WorldTile:true, TileMap:true*/
 var App = (function(){
 
-	var boxes, movingboxes, player, keys, width, height, x;
+	var boxes, platforms, movingboxes, player, keys, width, height, x;
 	var ticker;
 	var world;
 	var deathzones;
@@ -19,6 +19,7 @@ var App = (function(){
 
 	function App(){
 		boxes = [];
+		platforms = [];
 		movingboxes = [];
 		keys = [];
 		deathzones = [];
@@ -37,6 +38,8 @@ var App = (function(){
 		height = stage.canvas.height;
 		world.boundH = -(world.height-height);
 		world.boundW = -(world.width-width);
+
+		buildBounds();
 		
 		map = new TileMap(currentLevel);
 		bean.on(map, 'mapLoaded', mapLoadedHandler);
@@ -51,10 +54,15 @@ var App = (function(){
 
 	function mapLoadedHandler(){
 		world.addChild(map.displayobject);
-		player = new Player(200, 200, 20, 20);
+		player = new Player(50, 600, 20, 20);
 		player.gravity = world.gravity;
 		player.friction = world.friction;
 		world.addChild(player.shape);
+
+		boxes = boxes.concat(map.collisiontiles);
+		boxes = boxes.concat(map.movingtiles);
+		platforms = map.platformtiles;
+		deathzones = map.deathzones;
 
 		ticker = createjs.Ticker;
 		ticker.setFPS('60');
@@ -88,9 +96,9 @@ var App = (function(){
 
 		player.grounded = false;
 
-		/*for (var i = 0; i < boxes.length ; i++) {
+		for (var i = 0; i < boxes.length ; i++) {
 			
-			switch(CollisionDetection.checkCollision(player, boxes[i])){
+			switch(CollisionDetection.checkCollision(player, boxes[i], "box")){
 			case "l":
 				player.velX = 0;
 			break;
@@ -107,32 +115,42 @@ var App = (function(){
 			}
 		}
 
-		for (var j = 0; j < deathzones.length; j++) {
-			switch(CollisionDetection.checkCollision(player, deathzones[j])){
+		for (var j = 0; j < platforms.length ; j++) {
+			
+			switch(CollisionDetection.checkCollision(player, platforms[j], "platform")){
+			case "b":
+				player.grounded = true;
+				player.jumping = false;
+			break;
+			}
+		}
+
+		for (var k = 0; k < deathzones.length; k++) {
+			switch(CollisionDetection.checkCollision(player, deathzones[k])){
 
 			case "l":
 				player.velX = 0;
 				player.x = 50;
-				player.y = world.height - 200;
+				player.y = 600;
 			break;
 			case "r":
 				player.velX = 0;
 				player.x = 50;
-				player.y = world.height - 200;
+				player.y = 600;
 			break;
 			case "t":
 				player.velY *= -1;
 				player.x = 50;
-				player.y = world.height - 200;
+				player.y = 600;
 			break;
 			case "b":
 				player.grounded = true;
 				player.jumping = false;
 				player.x = 50;
-				player.y = world.height - 200;
+				player.y = 600;
 			break;
 			}
-		}*/
+		}
 		player.update();
 		stage.update();
 	}

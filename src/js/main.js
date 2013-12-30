@@ -5,7 +5,7 @@ MovingPlatform:true, MovingPlatformUP:true, createjs:true, FPSMeter:true,
 bean:true, World:true, Player:true, Image:true, WorldTile:true, TileMap:true*/
 var App = (function(){
 
-	var boxes, movingboxes, player, keys, width, height, x;
+	var boxes, platforms, movingboxes, player, keys, width, height, x;
 	var ticker;
 	var world;
 	var deathzones;
@@ -21,6 +21,7 @@ var App = (function(){
 
 	function App(){
 		boxes = [];
+		platforms = [];
 		movingboxes = [];
 		keys = [];
 		deathzones = [];
@@ -39,6 +40,8 @@ var App = (function(){
 		height = stage.canvas.height;
 		world.boundH = -(world.height-height);
 		world.boundW = -(world.width-width);
+
+		buildBounds();
 		
 		map = new TileMap(currentLevel);
 		bean.on(map, 'mapLoaded', mapLoadedHandler);
@@ -53,10 +56,15 @@ var App = (function(){
 
 	function mapLoadedHandler(){
 		world.addChild(map.displayobject);
-		player = new Player(200, 200, 20, 20);
+		player = new Player(50, 600, 20, 20);
 		player.gravity = world.gravity;
 		player.friction = world.friction;
 		world.addChild(player.shape);
+
+		boxes = boxes.concat(map.collisiontiles);
+		boxes = boxes.concat(map.movingtiles);
+		platforms = map.platformtiles;
+		deathzones = map.deathzones;
 
 		ticker = createjs.Ticker;
 		ticker.setFPS('60');
@@ -90,9 +98,9 @@ var App = (function(){
 
 		player.grounded = false;
 
-		/*for (var i = 0; i < boxes.length ; i++) {
+		for (var i = 0; i < boxes.length ; i++) {
 			
-			switch(CollisionDetection.checkCollision(player, boxes[i])){
+			switch(CollisionDetection.checkCollision(player, boxes[i], "box")){
 			case "l":
 				player.velX = 0;
 			break;
@@ -109,32 +117,42 @@ var App = (function(){
 			}
 		}
 
-		for (var j = 0; j < deathzones.length; j++) {
-			switch(CollisionDetection.checkCollision(player, deathzones[j])){
+		for (var j = 0; j < platforms.length ; j++) {
+			
+			switch(CollisionDetection.checkCollision(player, platforms[j], "platform")){
+			case "b":
+				player.grounded = true;
+				player.jumping = false;
+			break;
+			}
+		}
+
+		for (var k = 0; k < deathzones.length; k++) {
+			switch(CollisionDetection.checkCollision(player, deathzones[k])){
 
 			case "l":
 				player.velX = 0;
 				player.x = 50;
-				player.y = world.height - 200;
+				player.y = 600;
 			break;
 			case "r":
 				player.velX = 0;
 				player.x = 50;
-				player.y = world.height - 200;
+				player.y = 600;
 			break;
 			case "t":
 				player.velY *= -1;
 				player.x = 50;
-				player.y = world.height - 200;
+				player.y = 600;
 			break;
 			case "b":
 				player.grounded = true;
 				player.jumping = false;
 				player.x = 50;
-				player.y = world.height - 200;
+				player.y = 600;
 			break;
 			}
-		}*/
+		}
 		player.update();
 		stage.update();
 	}
@@ -225,11 +243,10 @@ var CollisionDetection = (function(){
 
 	}
 
-	CollisionDetection.checkCollision = function(shapeA, shapeB){
+	CollisionDetection.checkCollision = function(shapeA, shapeB, type){
 		//verschil in x en y van de twee shapes;
 		var vX = (shapeA.x + (shapeA.width/2)) - (shapeB.x + (shapeB.width/2));
 		var vY = (shapeA.y + (shapeA.height/2)) - (shapeB.y + (shapeB.height/2));
-
 		var hWidths = (shapeA.width/2) + (shapeB.width/2);
 		var hHeights = (shapeA.height/2) + (shapeB.height/2);
 		var colDir = "";
@@ -237,13 +254,14 @@ var CollisionDetection = (function(){
 		if(Math.abs(vX) < hWidths && Math.abs(vY) < hHeights) {
 			var oX = hWidths - Math.abs(vX);
 			var oY = hHeights - Math.abs(vY);
-
 			if(oX >= oY)
 			{
 				//top of bottom :')
 				if(vY > 0){
 					colDir = "t";
-					shapeA.y += oY;
+					if(type === "box"){
+						shapeA.y += oY;
+					}
 			
 				}else{
 					colDir = "b";
@@ -254,10 +272,14 @@ var CollisionDetection = (function(){
 				
 				if(vX > 0){
 					colDir = "l";
-					shapeA.x += oX;
+					if(type === "box"){
+						shapeA.x += oX;
+					}
 				}else{
 					colDir = "r";
-					shapeA.x -= oX;
+					if(type === "box"){
+						shapeA.x -= oX;
+					}
 				}
 
 			}
@@ -517,15 +539,15 @@ var Tile = (function(){
 	function Tile(sprite, name, tilewidth, tileheight){
 		this.sprite = sprite;
 		this.name = name;
-		this.tilewidth = tilewidth;
-		this.tileheight = tileheight;
+		this.width = tilewidth;
+		this.height = tileheight;
 		this.displayobject = new createjs.Container();
+		this.x = this.displayobject.x = this.sprite.x;
+		this.y = this.displayobject.y = this.sprite.y;
 		this.displayobject.name = name;
 		this.displayobject.obj = this;
-		this.displayobject.x = this.sprite.x;
-		this.displayobject.y = this.sprite.y;
-		this.displayobject.width = tilewidth;
-		this.displayobject.height = tileheight;
+		this.displayobject.width = this.width;
+		this.displayobject.height = this.height;
 		this.sprite.x = 0;
 		this.sprite.y = 0;
 		this.displayobject.addChild(this.sprite);
@@ -546,6 +568,7 @@ var TileMap = (function(){
 		this.collisiontiles = [];
 		this.deathzones = [];
 		this.platformtiles = [];
+		this.movingtiles = [];
 		this.displayobject = new createjs.Container();
 		this.draw();
 	}
@@ -615,14 +638,10 @@ var TileMap = (function(){
 				var cellBitmap = new createjs.Sprite(tilesetSheet);
 				var idx = x + y * layerData.width;
 				cellBitmap.gotoAndStop(layerData.data[idx] - 1);
-				if(x === 0){
-					cellBitmap.x = x * tilewidth;
-					cellBitmap.y = y * tileheight;
-				}else{
-					cellBitmap.x = x * (tilewidth);
-					cellBitmap.y = y * (tileheight);
-				}
-				
+		
+				cellBitmap.x = x * tilewidth;
+				cellBitmap.y = y * tileheight;
+
 				/** VISUEEL DE TILES WEERGEVEN **/
 				// add bitmap to stage
 				//cameras[0].push(cellBitmap);
@@ -666,6 +685,13 @@ var TileMap = (function(){
 							console.log("platform  added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.platformtiles.push(worldTile);
+						break;
+
+						case "MovingPlatform":
+							worldTile = new Tile(cellBitmap, name, tilewidth, tileheight);
+							console.log("movingplatform  added");
+							this.displayobject.addChild(worldTile.displayobject);
+							this.movingtiles.push(worldTile);
 						break;
 
 					}

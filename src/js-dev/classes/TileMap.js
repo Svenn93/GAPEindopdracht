@@ -8,6 +8,7 @@ var TileMap = (function(){
 		this.collisiontiles = [];
 		this.deathzones = [];
 		this.platformtiles = [];
+		this.movingtiles = [];
 		this.displayobject = new createjs.Container();
 		this.draw();
 	}
@@ -77,14 +78,10 @@ var TileMap = (function(){
 				var cellBitmap = new createjs.Sprite(tilesetSheet);
 				var idx = x + y * layerData.width;
 				cellBitmap.gotoAndStop(layerData.data[idx] - 1);
-				if(x === 0){
-					cellBitmap.x = x * tilewidth;
-					cellBitmap.y = y * tileheight;
-				}else{
-					cellBitmap.x = x * (tilewidth);
-					cellBitmap.y = y * (tileheight);
-				}
-				
+		
+				cellBitmap.x = x * tilewidth;
+				cellBitmap.y = y * tileheight;
+
 				/** VISUEEL DE TILES WEERGEVEN **/
 				// add bitmap to stage
 				//cameras[0].push(cellBitmap);
@@ -128,6 +125,13 @@ var TileMap = (function(){
 							console.log("platform  added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.platformtiles.push(worldTile);
+						break;
+
+						case "MovingPlatform":
+							worldTile = new Tile(cellBitmap, name, tilewidth, tileheight);
+							console.log("movingplatform  added");
+							this.displayobject.addChild(worldTile.displayobject);
+							this.movingtiles.push(worldTile);
 						break;
 
 					}
