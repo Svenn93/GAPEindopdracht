@@ -2,7 +2,7 @@
 
 /*globals stage:true, Bound:true, Platform:true, CollisionDetection:true, 
 MovingPlatform:true, MovingPlatformUP:true, createjs:true, FPSMeter:true, 
-Reward:true, Physics:true, Player:true, Image:true, WorldTile:true*/
+bean:true, World:true, Player:true, Image:true, WorldTile:true, TileMap:true*/
 var App = (function(){
 
 	var boxes, movingboxes, player, keys, width, height, x;
@@ -13,7 +13,7 @@ var App = (function(){
 	var aantalSwitches;
 
 	var tileset;
-	var mapData;
+	var map;
 
 	var currentLevel;
 	var square;
@@ -33,48 +33,38 @@ var App = (function(){
 		currentLevel = 1;
 
 		stage = new createjs.Stage('cnvs');
-		//nieuwe wereld
-		world = Physics();
+		world = new World(1200, 800);
 
 		width = stage.canvas.width;
 		height = stage.canvas.height;
+		world.boundH = -(world.height-height);
+		world.boundW = -(world.width-width);
+		
+		map = new TileMap(currentLevel);
+		bean.on(map, 'mapLoaded', mapLoadedHandler);
 
-		//bounds van de wereld
-		var bounds = Physics.aabb(0, 0, width, height);
-
-		//zwaartekracht van de wereld
-		var gravity = Physics.behavior('constant-acceleration', {
-			acc:{x:0, y:0.0004}
-		});
-		world.add(gravity);
-
-		//restitution: hardheid vloeg (trampoline vs beton)
-		var edge = Physics.behavior('edge-collision-detection', {
-			aabb:bounds,
-			restitution: 0.3
-		});
-		world.add(edge);
-
-		world.add(Physics.behavior('body-collision-detection'));
-		world.add(Physics.behavior('sweep-prune'));
-		world.add(Physics.behavior('body-impulse-response'));
-			
-		buildLevel();
-		//aanmaken player + adden
-		player = new Player(200, 200, 20, 20);
-		player.gravity = world.gravity;
-		//world.addChild(player.shape);
 		//ticker, voor stage refresh.
-		Physics.util.ticker.subscribe(update);
-		Physics.util.ticker.start();
 
 		window.onkeydown = keydown;
 		window.onkeyup = keyup;
 
-		//stage.addChild(world.container);
+		stage.addChild(world.container);
 	}
 
-	function update(time, dt) {
+	function mapLoadedHandler(){
+		world.addChild(map.displayobject);
+		player = new Player(200, 200, 20, 20);
+		player.gravity = world.gravity;
+		player.friction = world.friction;
+		world.addChild(player.shape);
+
+		ticker = createjs.Ticker;
+		ticker.setFPS('60');
+		ticker.addEventListener('tick', update);
+	}
+
+	function update() {
+
 		if(keys[37]){
 			//links
 			if(player.velX > -player.speed){
@@ -98,7 +88,7 @@ var App = (function(){
 			}
 		}
 
-		//player.grounded = false;
+		player.grounded = false;
 
 		/*for (var i = 0; i < boxes.length ; i++) {
 			
@@ -145,17 +135,7 @@ var App = (function(){
 			break;
 			}
 		}*/
-		//player.update();
-		world.step(time);
-		updateCanvas();
-	}
-
-	function updateCanvas() {
-		for(var i = 0; i < world._bodies.length; i++){
-			var body = world._bodies[i];
-
-			stage.getChildByName(body.view).obj.update(body);
-		}
+		player.update();
 		stage.update();
 	}
 
@@ -200,143 +180,6 @@ var App = (function(){
 		boxes.push(new Bound(world.width-1, 0, 1, world.height));
 	}
 
-	
-	function buildLevel() {
-		switch(currentLevel) {
-			case 1: var jsonURL = 'maps/level1/level1.json';
-			break;
-		}
-		/** JSON VAN HET JUISTE LEVEL INLADEN **/
-		$.getJSON(jsonURL, jsonLoaded);
-	}
-
-	function jsonLoaded( data ) {
-		mapData = data;
-		tileset = new Image();
-		tileset.src = mapData.tilesets[0].image;
-		tileset.onLoad = initLayers();
-	}
-
-	function initLayers() {
-		/** DE JUISTE LAYER UIT HET JSONBESTAND OPHALEN **/
-		var w = mapData.tilesets[0].tilewidth;
-		var h = mapData.tilesets[0].tileheight;
-		var imageData = {
-			images: [ tileset ],
-			frames: {
-				width: w,
-				height: h
-			}
-		};
-
-		console.log('ImageData: ', imageData);
-
-		var tilesetSheet = new createjs.SpriteSheet(imageData);
-
-		for(var idx = 0; idx < mapData.layers.length; idx++) {
-			var layerData = mapData.layers[idx];
-			if(layerData.type === "tilelayer"){
-				initLayer(layerData, tilesetSheet, mapData.tilewidth, mapData.tileheight);
-			}
-		}
-
-		/** DE MOVING PLATFORMS WORDEN VOORLOPIG HANDMATIG TOEGEVOEGD **/
-		/*var movingBox1 = new MovingPlatform(850, world.height - 150, 100, 15, '#E3D3C6', 300, 850, 'l', 5000);
-		boxes.push(movingBox1);
-		stage.addChild(movingBox1.shape);
-		//cameras[1].push(movingBox1);
-		//initCameras();
-		console.log('alle boxes gemaakt');*/
-
-		var boxWorld = new Platform(200, 300 , 50, 50, '#0000FF', 'test');
-		stage.addChild(boxWorld.displayobject);
-
-		var boxWorldobj = Physics.body('convex-polygon', {
-			x:100,
-			y:300,
-			vertices: [
-				{x: 0, y: 50},
-				{x: 50, y: 50},
-				{x: 50, y: 0},
-				{x: 0, y: 0}
-			],
-			cof:1,
-			mass: 1,
-			restitution: 0,
-			fixed:false,
-			view: 'test'
-		});
-		world.add(boxWorldobj);
-
-	}
-
-
-	function initLayer(layerData, tilesetSheet, tilewidth, tileheight) {
-		var platformteller= 0;
-		for (var y = 0; y < layerData.height; y++) {
-			for ( var x = 0; x < layerData.width; x++) {
-				var cellBitmap = new createjs.Sprite(tilesetSheet);
-				var idx = x + y * layerData.width;
-				cellBitmap.gotoAndStop(layerData.data[idx] - 1);
-				if(x === 0){
-					cellBitmap.x = x * tilewidth;
-					cellBitmap.y = y * tileheight;
-				}else{
-					cellBitmap.x = x * (tilewidth);
-					cellBitmap.y = y * (tileheight);
-				}
-				
-				/** VISUEEL DE TILES WEERGEVEN **/
-				// add bitmap to stage
-				//cameras[0].push(cellBitmap);
-				//TODO: cellbitmap koppelen ana de view van de Physics body;
-				/** COLLISION LOGICA, OBJECTEN '''NIET''' TOEVOEGEN AAN STAGE (enkel voor developement)**/
-				if(layerData.data[idx] !== 0)
-				{
-					platformteller++;
-		
-					switch (layerData.name)
-					{
-						case "world":
-							var name = "platform" + platformteller;
-
-							var worldTile = new WorldTile(cellBitmap, name, tilewidth, tileheight);
-							stage.addChild(worldTile.displayobject);
-							console.log(worldTile.displayobject.x, worldTile.displayobject.y);
-							var boxWorldobj = Physics.body('convex-polygon', {
-								x:worldTile.displayobject.x,
-								y:worldTile.displayobject.y,
-								vertices: [
-									{x: 1, y: 49},
-									{x: 49, y: 49},
-									{x: 49, y: 1},
-									{x: 1, y: 1}
-								],
-								cof:1,
-								restitution:0,
-								fixed:true,
-								mass:1,
-								view: name
-							});
-							world.add(boxWorldobj);
-							console.log("platform added");
-							//cameras[0].push(boxWorld);
-						break;
-
-						/*case "Death":
-							var boxDeath = new Platform(cellBitmap.x,cellBitmap.y ,50, 50, '#FF0000');
-							deathzones.push(boxDeath);
-							world.addChild(boxDeath.shape);
-							//cameras[0].push(boxDeath);
-						break;*/
-
-					}
-				}
-
-
-			}
-		}
-	}
 
 	function initCameras(){
 		console.log("init cameras");
@@ -669,6 +512,175 @@ var Reward = (function(){
 })();
 
 /*globals createjs:true*/
+var Tile = (function(){
+
+	function Tile(sprite, name, tilewidth, tileheight){
+		this.sprite = sprite;
+		this.name = name;
+		this.tilewidth = tilewidth;
+		this.tileheight = tileheight;
+		this.displayobject = new createjs.Container();
+		this.displayobject.name = name;
+		this.displayobject.obj = this;
+		this.displayobject.x = this.sprite.x;
+		this.displayobject.y = this.sprite.y;
+		this.displayobject.width = tilewidth;
+		this.displayobject.height = tileheight;
+		this.sprite.x = 0;
+		this.sprite.y = 0;
+		this.displayobject.addChild(this.sprite);
+	}
+
+	return Tile;
+
+})();
+
+
+/*globals createjs:true, Tile:true, bean:true*/
+var TileMap = (function(){
+
+	function Map(currentLevel){
+		this.currentLevel = currentLevel;
+		this.mapData = "";
+		this.worldtiles = [];
+		this.collisiontiles = [];
+		this.deathzones = [];
+		this.platformtiles = [];
+		this.displayobject = new createjs.Container();
+		this.draw();
+	}
+
+	Map.prototype.draw = function() {
+		var self = this;
+		var jsonURL = 'maps/level' + 1 + '/level.json';
+		/** JSON VAN HET JUISTE LEVEL INLADEN **/
+		$.ajax({
+			context:this,
+			url:jsonURL,
+			success:self.jsonLoaded}
+		);
+		console.log('json inladen');
+	};
+
+	Map.prototype.jsonLoaded = function( data ){
+		var self = this;
+		this.mapData = data;
+		this.tileset = new Image();
+		this.tileset.src = this.mapData.tilesets[0].image;
+		console.log('json ingeladen', this.mapData.tilesets[0]);
+		this.tileset.onLoad = self.initLayers();
+	};
+
+	Map.prototype.initLayers = function(){
+		/** DE JUISTE LAYER UIT HET JSONBESTAND OPHALEN **/
+		var self = this;
+		console.log(this);
+		var w = this.mapData.tilesets[0].tilewidth;
+		var h = this.mapData.tilesets[0].tileheight;
+		var imageData = {
+			images: [ this.tileset ],
+			frames: {
+				width: w,
+				height: h
+			}
+		};
+
+		console.log('ImageData: ', imageData);
+
+		var tilesetSheet = new createjs.SpriteSheet(imageData);
+
+		for(var idx = 0; idx < this.mapData.layers.length; idx++) {
+			var layerData = this.mapData.layers[idx];
+			if(layerData.type === "tilelayer"){
+				this.initLayer(layerData, tilesetSheet, this.mapData.tilewidth, this.mapData.tileheight);
+			}
+		}
+
+		bean.fire(self, 'mapLoaded');
+
+		/** DE MOVING PLATFORMS WORDEN VOORLOPIG HANDMATIG TOEGEVOEGD **/
+		/*var movingBox1 = new MovingPlatform(850, world.height - 150, 100, 15, '#E3D3C6', 300, 850, 'l', 5000);
+		boxes.push(movingBox1);
+		stage.addChild(movingBox1.shape);
+		//cameras[1].push(movingBox1);
+		//initCameras();
+		console.log('alle boxes gemaakt');*/
+	};
+
+	Map.prototype.initLayer = function(layerData, tilesetSheet, tilewidth, tileheight) {
+		var self=this;
+		var platformteller= 0;
+		for (var y = 0; y < layerData.height; y++) {
+			for ( var x = 0; x < layerData.width; x++) {
+				var cellBitmap = new createjs.Sprite(tilesetSheet);
+				var idx = x + y * layerData.width;
+				cellBitmap.gotoAndStop(layerData.data[idx] - 1);
+				if(x === 0){
+					cellBitmap.x = x * tilewidth;
+					cellBitmap.y = y * tileheight;
+				}else{
+					cellBitmap.x = x * (tilewidth);
+					cellBitmap.y = y * (tileheight);
+				}
+				
+				/** VISUEEL DE TILES WEERGEVEN **/
+				// add bitmap to stage
+				//cameras[0].push(cellBitmap);
+				//TODO: cellbitmap koppelen ana de view van de Physics body;
+				/** COLLISION LOGICA, OBJECTEN '''NIET''' TOEVOEGEN AAN STAGE (enkel voor developement)**/
+				
+				if(layerData.data[idx] !== 0)
+				{
+					platformteller++;
+					var name = "platform" + platformteller;
+					var worldTile = "";
+					switch (layerData.name)
+					{
+						case "World":
+
+							worldTile = new Tile(cellBitmap, name, tilewidth, tileheight);
+							console.log("worldtile added");
+							this.displayobject.addChild(worldTile.displayobject);
+							this.worldtiles.push(worldTile);
+							//cameras[0].push(boxWorld);
+						break;
+
+						case "Collision":
+
+							worldTile = new Tile(cellBitmap, name, tilewidth, tileheight);
+							console.log("collision worldtile added");
+							this.displayobject.addChild(worldTile.displayobject);
+							this.collisiontiles.push(worldTile);
+							//cameras[0].push(boxDeath);
+						break;
+
+						case "Deadzone":
+							worldTile = new Tile(cellBitmap, name, tilewidth, tileheight);
+							console.log("deadzone added");
+							this.displayobject.addChild(worldTile.displayobject);
+							this.deathzones.push(worldTile);
+						break;
+
+						case "Platform":
+							worldTile = new Tile(cellBitmap, name, tilewidth, tileheight);
+							console.log("platform  added");
+							this.displayobject.addChild(worldTile.displayobject);
+							this.platformtiles.push(worldTile);
+						break;
+
+					}
+				}
+
+
+			}
+		}
+	};
+
+	return Map;
+
+})();
+
+/*globals createjs:true*/
 var World =(function(){
 	var boundH, boundW;
 
@@ -710,47 +722,6 @@ var World =(function(){
 	return World;
 
 })();
-
-/*globals createjs:true*/
-var WorldTile = (function(){
-
-	function WorldTile(sprite, name, tilewidth, tileheight){
-		this.sprite = sprite;
-		this.name = name;
-		this.tilewidth = tilewidth;
-		this.tileheight = tileheight;
-		this.displayobject = new createjs.Container();
-		this.displayobject.name = name;
-		this.displayobject.obj = this;
-		this.displayobject.x = this.sprite.x;
-		this.displayobject.y = this.sprite.y;
-		this.displayobject.width = tilewidth;
-		this.displayobject.height = tileheight;
-		this.sprite.x = 0;
-		this.sprite.y = 0;
-		this.displayobject.addChild(this.sprite);
-	}
-
-	WorldTile.prototype.update = function(body) {
-		this.displayobject.x = body.state.pos.get(0);
-		this.displayobject.y = body.state.pos.get(1);
-		this.displayobject.regX = this.displayobject.width/2;
-		this.displayobject.regY = this.displayobject.height/2;
-		var angle = body.state.angular.pos * (180/Math.PI);
-		if(angle > 360) {
-			angle = angle % 360;
-		}else if(angle < -360) {
-			angle = angle % -360;
-		}
-		//this.displayobject.rotation = angle;
-		this.displayobject.regX = 0;
-		this.displayobject.regY = 0;
-	};
-
-	return WorldTile;
-
-})();
-
 
 /*globals App:true*/
 
