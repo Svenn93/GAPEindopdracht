@@ -61,10 +61,17 @@ var App = (function(){
 		player.friction = world.friction;
 		world.addChild(player.shape);
 
+		//collision logica
 		boxes = boxes.concat(map.collisiontiles);
 		boxes = boxes.concat(map.movingtiles);
 		platforms = map.platformtiles;
 		deathzones = map.deathzones;
+
+		//camera logica
+		cameras[0] = map.collisiontiles.concat(map.worldtiles, map.deathzones, map.platformtiles);
+		console.log(cameras[0]);
+		cameras[1] = map.movingtiles;
+		initCameras();
 
 		ticker = createjs.Ticker;
 		ticker.setFPS('60');
@@ -161,27 +168,15 @@ var App = (function(){
 		keys[event.keyCode] = true;
 
 		if(event.keyCode === 90){
-			for (var i = 0; i < cameras[1].length; i++)
-			{
-				cameras[1][i].setVisibility(true);
-			}
-			for (var d = 0; d < cameras[0].length; d++)
-			{
-				cameras[0][d].alpha = 0;
-			}
+			updateCameras(1, true);
+			updateCameras(0, false);
 			aantalSwitches++;
 		//document.getElementById("aantal").innerHTML = aantalSwitches;
 		}
 
 		if(event.keyCode === 65){
-			for (var r = 0; r < cameras[1].length; r++)
-			{
-				cameras[1][r].setVisibility(false);
-			}
-			for (var p = 0; p < cameras[0].length; p++)
-			{
-				cameras[0][p].alpha = 1;
-			}
+			updateCameras(1, false);
+			updateCameras(0, true);
 			aantalSwitches++;
 		//document.getElementById("aantal").innerHTML = aantalSwitches;
 		}
@@ -203,11 +198,10 @@ var App = (function(){
 		console.log("init cameras");
 		cameraVisibilities[0] = true;
 		cameraVisibilities[1] = false;
-		console.log(cameras);
 
 		for (var i = 0; i < cameras[1].length; i++)
 		{
-			cameras[1][i].setVisibility(false);
+			cameras[1][i].displayobject.visible = false;
 		}
 	}
 
@@ -215,7 +209,7 @@ var App = (function(){
 
 		for(var i = 0; i < cameras[cameraNumber].length; i++)
 		{
-			cameras[cameraNumber][i].setVisibility(visibility);
+			cameras[cameraNumber][i].displayobject.visible = visibility;
 			cameraVisibilities[cameraNumber] = visibility;
 		}
 	}
