@@ -1,4 +1,4 @@
-/*globals createjs:true, Tile:true, bean:true*/
+/*globals createjs:true, Tile:true, MovingTile:true, bean:true*/
 var TileMap = (function(){
 
 	function Map(currentLevel){
@@ -16,7 +16,7 @@ var TileMap = (function(){
 
 	Map.prototype.draw = function() {
 		var self = this;
-		var jsonURL = 'maps/level' + 1 + '/level.json';
+		var jsonURL = 'maps/level' + 2 + '/level.json';
 		/** JSON VAN HET JUISTE LEVEL INLADEN **/
 		$.ajax({
 			context:this,
@@ -66,34 +66,35 @@ var TileMap = (function(){
 		}
 
 		bean.fire(self, 'mapLoaded');
-
-		/** DE MOVING PLATFORMS WORDEN VOORLOPIG HANDMATIG TOEGEVOEGD **/
-		/*var movingBox1 = new MovingPlatform(850, world.height - 150, 100, 15, '#E3D3C6', 300, 850, 'l', 5000);
-		boxes.push(movingBox1);
-		stage.addChild(movingBox1.shape);
-		//cameras[1].push(movingBox1);
-		//initCameras();
-		console.log('alle boxes gemaakt');*/
 	};
 
 
 	Map.prototype.initLayer = function(layerData, tilesetSheet, tilewidth, tileheight) {
 		var self=this;
 		var platformteller= 0;
+		var target = {
+			x: "",
+			y: ""
+		};
+
 		for (var y = 0; y < layerData.height; y++) {
 			for ( var x = 0; x < layerData.width; x++) {
 				var cellBitmap = new createjs.Sprite(tilesetSheet);
 				var idx = x + y * layerData.width;
-				cellBitmap.gotoAndStop(layerData.data[idx] - 1);
-		
+
+				if(layerData.data[idx] instanceof Array){
+					console.log('Moving Platform: ', layerData.data[idx]);
+					cellBitmap.gotoAndStop(layerData.data[idx][0] - 1);
+					target.x = (x + layerData.data[idx][1]) * tilewidth;
+					target.y = (y + layerData.data[idx][2]) * tileheight;
+
+					console.log('Target: ', target.x, target.y);
+				}else{
+					cellBitmap.gotoAndStop(layerData.data[idx] - 1);
+				}
+				
 				cellBitmap.x = x * tilewidth;
 				cellBitmap.y = y * tileheight;
-
-				/** VISUEEL DE TILES WEERGEVEN **/
-				// add bitmap to stage
-				//cameras[0].push(cellBitmap);
-				//TODO: cellbitmap koppelen ana de view van de Physics body;
-				/** COLLISION LOGICA, OBJECTEN '''NIET''' TOEVOEGEN AAN STAGE (enkel voor developement)**/
 				
 				if(layerData.data[idx] !== 0)
 				{
@@ -135,16 +136,15 @@ var TileMap = (function(){
 						break;
 
 						case "MovingPlatform":
-							worldTile = new Tile(cellBitmap, name, tilewidth, tileheight);
-							console.log("movingplatform  added");
+							var speed = layerData.speed;
+							worldTile = new MovingTile(cellBitmap, tilewidth, tileheight, target, speed);
+							console.log("movingplatform added with target: ", target);
 							this.displayobject.addChild(worldTile.displayobject);
 							this.movingtiles.push(worldTile);
 						break;
 
 					}
 				}
-
-
 			}
 		}
 	};

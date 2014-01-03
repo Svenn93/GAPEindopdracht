@@ -61,9 +61,9 @@ var App = (function(){
 
 		//collision logica
 		boxes = boxes.concat(map.collisiontiles);
-		boxes = boxes.concat(map.movingtiles);
 		platforms = map.platformtiles;
 		deathzones = map.deathzones;
+		movingboxes = map.movingtiles;
 
 		//camera logica
 		cameras[0] = map.collisiontiles.concat(map.worldtiles, map.deathzones, map.platformtiles);
@@ -133,7 +133,7 @@ var App = (function(){
 		}
 
 		for (var k = 0; k < deathzones.length; k++) {
-			switch(CollisionDetection.checkCollision(player, deathzones[k])){
+			switch(CollisionDetection.checkCollision(player, deathzones[k], "deathzone")){
 
 			case "l":
 				player.velX = 0;
@@ -155,6 +155,25 @@ var App = (function(){
 				player.jumping = false;
 				player.x = 50;
 				player.y = 600;
+			break;
+			}
+		}
+
+		for(var l = 0; l < movingboxes.length; l++) {
+			switch(CollisionDetection.checkCollision(player, movingboxes[l], "movingbox")){
+
+			case "l":
+				player.velX = 0;
+			break;
+			case "r":
+				player.velX = 0;
+			break;
+			case "t":
+				player.velY *= -1;
+			break;
+			case "b":
+				player.grounded = true;
+				player.jumping = false;
 			break;
 			}
 		}

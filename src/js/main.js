@@ -63,9 +63,9 @@ var App = (function(){
 
 		//collision logica
 		boxes = boxes.concat(map.collisiontiles);
-		boxes = boxes.concat(map.movingtiles);
 		platforms = map.platformtiles;
 		deathzones = map.deathzones;
+		movingboxes = map.movingtiles;
 
 		//camera logica
 		cameras[0] = map.collisiontiles.concat(map.worldtiles, map.deathzones, map.platformtiles);
@@ -135,7 +135,7 @@ var App = (function(){
 		}
 
 		for (var k = 0; k < deathzones.length; k++) {
-			switch(CollisionDetection.checkCollision(player, deathzones[k])){
+			switch(CollisionDetection.checkCollision(player, deathzones[k], "deathzone")){
 
 			case "l":
 				player.velX = 0;
@@ -157,6 +157,25 @@ var App = (function(){
 				player.jumping = false;
 				player.x = 50;
 				player.y = 600;
+			break;
+			}
+		}
+
+		for(var l = 0; l < movingboxes.length; l++) {
+			switch(CollisionDetection.checkCollision(player, movingboxes[l], "movingbox")){
+
+			case "l":
+				player.velX = 0;
+			break;
+			case "r":
+				player.velX = 0;
+			break;
+			case "t":
+				player.velY *= -1;
+			break;
+			case "b":
+				player.grounded = true;
+				player.jumping = false;
 			break;
 			}
 		}
@@ -287,64 +306,6 @@ var CollisionDetection = (function(){
 })();
 
 /*globals createjs:true*/
-var MovingPlatform = (function(){
-
-	function MovingPlatform(x, y, width, height, color, leftBound, rightBound, startOrientation, speed){
-		this.x = x;
-		this.y = y;
-		this.color = color;
-		this.width = width;
-		this.height = height;
-		this.speed = speed;
-		this.orientation = startOrientation;
-		this.leftBound = leftBound;
-		this.rightBound = rightBound;
-		this.shape = new createjs.Shape();
-		this.shape.x = this.x;
-		this.shape.y = this.y;
-		var self = this;
-		self.draw();
-	}
-
-	MovingPlatform.prototype.draw = function() {
-		this.shape.graphics.c();
-		this.shape.graphics.f(this.color);
-		this.shape.graphics.dr(0, 0, this.width, this.height);
-		this.shape.graphics.ef();
-		this.move();
-	};
-
-	MovingPlatform.prototype.move = function() {
-		if(this.orientation === 'l'){
-			createjs.Tween.get(this).to({x:this.leftBound}, this.speed).call(this.changeOrientation);
-			createjs.Tween.get(this.shape).to({x:this.leftBound}, this.speed);
-			console.log(this.x);
-		}else{
-			createjs.Tween.get(this).to({x:this.rightBound}, this.speed).call(this.changeOrientation);
-			createjs.Tween.get(this.shape).to({x:this.rightBound}, this.speed);
-		}
-	};
-
-	MovingPlatform.prototype.changeOrientation = function() {
-		if(this.orientation === 'l') {
-			this.orientation = 'r';
-		} else {
-			this.orientation = 'l';
-		}
-		this.move();
-	};
-
-	MovingPlatform.prototype.setVisibility = function(visible) {
-		this.shape.visible = visible;
-	};
-
-
-
-	return MovingPlatform;
-
-})();
-
-/*globals createjs:true*/
 var MovingPlatformUP = (function(){
 
 	function MovingPlatformUP(x, y, width, height, color, downBound, upBound, startOrientation, speed){
@@ -399,6 +360,50 @@ var MovingPlatformUP = (function(){
 
 
 	return MovingPlatformUP;
+
+})();
+
+/*globals createjs:true*/
+var MovingTile = (function(){
+
+	function MovingTile(sprite, tilewidth, tileheight, target, speed){
+		this.sprite = sprite;
+		this.width = tilewidth;
+		this.height = tileheight;
+		this.speed = speed;
+		this.target = target;
+		this.displayobject = new createjs.Container();
+		this.originalX = this.x = this.displayobject.x = this.sprite.x;
+		this.originalY = this.y = this.displayobject.y = this.sprite.y;
+		this.displayobject.name = name;
+		this.displayobject.obj = this;
+		this.displayobject.width = this.width;
+		this.displayobject.height = this.height;
+		this.sprite.x = 0;
+		this.sprite.y = 0;
+		this.displayobject.addChild(this.sprite);
+		this.moveToTarget();
+	}
+
+	MovingTile.prototype.moveToTarget = function() {
+		var self = this;
+		console.log(self);
+		createjs.Tween.get(self.displayobject, {override:true, loop:true}).to({x:self.target.x, y: self.target.y}, 2000).to({x:self.originalX, y:self.originalY}, 2000).addEventListener("change", self.setPosition.bind(self));
+		//createjs.Tween.get(self.displayobject, {override:true, loop:true}).wait(2000).to({x:self.originalX, y: self.originalY}, 2000).addEventListener("change", self.setPosition.bind(self));
+	};
+
+	MovingTile.prototype.moveToOrigin = function() {
+		var self = this;
+		console.log(self);
+		
+	};
+
+	MovingTile.prototype.setPosition = function() {
+		this.x = this.displayobject.x;
+		this.y = this.displayobject.y;
+	};
+
+	return MovingTile;
 
 })();
 
@@ -552,7 +557,7 @@ var Tile = (function(){
 })();
 
 
-/*globals createjs:true, Tile:true, bean:true*/
+/*globals createjs:true, Tile:true, MovingTile:true, bean:true*/
 var TileMap = (function(){
 
 	function Map(currentLevel){
@@ -570,7 +575,7 @@ var TileMap = (function(){
 
 	Map.prototype.draw = function() {
 		var self = this;
-		var jsonURL = 'maps/level' + 1 + '/level.json';
+		var jsonURL = 'maps/level' + 2 + '/level.json';
 		/** JSON VAN HET JUISTE LEVEL INLADEN **/
 		$.ajax({
 			context:this,
@@ -620,34 +625,35 @@ var TileMap = (function(){
 		}
 
 		bean.fire(self, 'mapLoaded');
-
-		/** DE MOVING PLATFORMS WORDEN VOORLOPIG HANDMATIG TOEGEVOEGD **/
-		/*var movingBox1 = new MovingPlatform(850, world.height - 150, 100, 15, '#E3D3C6', 300, 850, 'l', 5000);
-		boxes.push(movingBox1);
-		stage.addChild(movingBox1.shape);
-		//cameras[1].push(movingBox1);
-		//initCameras();
-		console.log('alle boxes gemaakt');*/
 	};
 
 
 	Map.prototype.initLayer = function(layerData, tilesetSheet, tilewidth, tileheight) {
 		var self=this;
 		var platformteller= 0;
+		var target = {
+			x: "",
+			y: ""
+		};
+
 		for (var y = 0; y < layerData.height; y++) {
 			for ( var x = 0; x < layerData.width; x++) {
 				var cellBitmap = new createjs.Sprite(tilesetSheet);
 				var idx = x + y * layerData.width;
-				cellBitmap.gotoAndStop(layerData.data[idx] - 1);
-		
+
+				if(layerData.data[idx] instanceof Array){
+					console.log('Moving Platform: ', layerData.data[idx]);
+					cellBitmap.gotoAndStop(layerData.data[idx][0] - 1);
+					target.x = (x + layerData.data[idx][1]) * tilewidth;
+					target.y = (y + layerData.data[idx][2]) * tileheight;
+
+					console.log('Target: ', target.x, target.y);
+				}else{
+					cellBitmap.gotoAndStop(layerData.data[idx] - 1);
+				}
+				
 				cellBitmap.x = x * tilewidth;
 				cellBitmap.y = y * tileheight;
-
-				/** VISUEEL DE TILES WEERGEVEN **/
-				// add bitmap to stage
-				//cameras[0].push(cellBitmap);
-				//TODO: cellbitmap koppelen ana de view van de Physics body;
-				/** COLLISION LOGICA, OBJECTEN '''NIET''' TOEVOEGEN AAN STAGE (enkel voor developement)**/
 				
 				if(layerData.data[idx] !== 0)
 				{
@@ -689,16 +695,15 @@ var TileMap = (function(){
 						break;
 
 						case "MovingPlatform":
-							worldTile = new Tile(cellBitmap, name, tilewidth, tileheight);
-							console.log("movingplatform  added");
+							var speed = layerData.speed;
+							worldTile = new MovingTile(cellBitmap, tilewidth, tileheight, target, speed);
+							console.log("movingplatform added with target: ", target);
 							this.displayobject.addChild(worldTile.displayobject);
 							this.movingtiles.push(worldTile);
 						break;
 
 					}
 				}
-
-
 			}
 		}
 	};
