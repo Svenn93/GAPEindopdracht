@@ -71,7 +71,7 @@ var App = (function(){
 		cameras[0] = map.collisiontiles.concat(map.worldtiles, map.deathzones, map.platformtiles);
 		console.log(cameras[0]);
 		cameras[1] = map.movingtiles;
-		initCameras();
+		//initCameras();
 
 		ticker = createjs.Ticker;
 		ticker.setFPS('60');
@@ -179,6 +179,11 @@ var App = (function(){
 			break;
 			}
 		}
+
+		for (var a = 0; a < map.movingtiles.length; a++){
+			map.movingtiles[a].update();
+		}
+
 		player.update();
 		stage.update();
 	}
@@ -366,12 +371,13 @@ var MovingPlatformUP = (function(){
 /*globals createjs:true*/
 var MovingTile = (function(){
 
-	function MovingTile(sprite, tilewidth, tileheight, target, speed){
+	function MovingTile(sprite, tilewidth, tileheight, targetX, targetY, speed){
 		this.sprite = sprite;
 		this.width = tilewidth;
-		this.height = tileheight;
+		this.height = tileheight - 30;
 		this.speed = speed;
-		this.target = target;
+		this.targetX = targetX;
+		this.targetY = targetY;
 		this.displayobject = new createjs.Container();
 		this.originalX = this.x = this.displayobject.x = this.sprite.x;
 		this.originalY = this.y = this.displayobject.y = this.sprite.y;
@@ -380,15 +386,78 @@ var MovingTile = (function(){
 		this.displayobject.width = this.width;
 		this.displayobject.height = this.height;
 		this.sprite.x = 0;
+		this.targetReached = false;
 		this.sprite.y = 0;
+		this.orientation = "";
 		this.displayobject.addChild(this.sprite);
-		this.moveToTarget();
+		this.calculateOrientation();
 	}
 
-	MovingTile.prototype.moveToTarget = function() {
-		if(this.x < this.target.x){
-			this.x += -0.8;
+	MovingTile.prototype.calculateOrientation = function(first_argument) {
+		if(this.targetX < this.originalX){
+			this.orientation = "left";
+		}else if(this.targetX > this.originalX){
+			this.orientation = "right";
 		}
+
+		if(this.targetY > this.originalY){
+			this.orientation = "down";
+		}else if(this.targetY < this.originalY){
+			this.orientation = "up";
+		}
+	};
+
+	MovingTile.prototype.update = function() {
+		var temp = "";
+		if(this.orientation === "left"){
+
+			if(this.x > this.targetX) {
+				this.x -= this.speed;
+			}else if(this.x <= this.targetX) {
+				this.orientation = "right";
+				temp = this.targetX;
+				this.targetX = this.originalX;
+				this.originalX = temp;
+			}
+
+		}else if(this.orientation === "right"){
+
+			if(this.x < this.targetX) {
+				this.x += this.speed;
+				console.log(this.x, this.targetX);
+			}else if(this.x >= this.targetX) {
+				this.orientation = "left";
+				temp = this.targetX;
+				this.targetX = this.originalX;
+				this.originalX = temp;
+			}
+		}
+
+		if(this.orientation === "up"){
+
+			if(this.y > this.targetY){
+				this.y -= this.speed;
+			}else if (this.y <= this.targetY) {
+				this.orientation = "down";
+				temp = this.targetY;
+				this.targetY = this.originalY;
+				this.originalY = temp;
+			}
+
+		}else if(this.orientation === "down"){
+
+			if(this.y < this.targetY) {
+				this.y += this.speed;
+			}else if (this.y >= this.targetY) {
+				this.orientation = "up";
+				temp = this.targetY;
+				this.targetY = this.originalY;
+				this.originalY = temp;
+			}
+		}
+
+		this.displayobject.x = this.x;
+		this.displayobject.y = this.y;
 
 		//createjs.Tween.get(this.displayobject, {override:true, loop:true}).to({x:this.target.x, y: this.target.y}, 2000).to({x:this.originalX, y:this.originalY}, 2000).addEventListener("change", this.setPosition.bind(this));
 		//createjs.Tween.get(self.displayobject, {override:true, loop:true}).wait(2000).to({x:self.originalX, y: self.originalY}, 2000).addEventListener("change", self.setPosition.bind(self));
@@ -633,10 +702,8 @@ var TileMap = (function(){
 	Map.prototype.initLayer = function(layerData, tilesetSheet, tilewidth, tileheight) {
 		var self=this;
 		var platformteller= 0;
-		var target = {
-			x: "",
-			y: ""
-		};
+		var targetX = "";
+		var targetY = "";
 
 		for (var y = 0; y < layerData.height; y++) {
 			for ( var x = 0; x < layerData.width; x++) {
@@ -646,10 +713,10 @@ var TileMap = (function(){
 				if(layerData.data[idx] instanceof Array){
 					console.log('Moving Platform: ', layerData.data[idx]);
 					cellBitmap.gotoAndStop(layerData.data[idx][0] - 1);
-					target.x = (x + layerData.data[idx][1]) * tilewidth;
-					target.y = (y + layerData.data[idx][2]) * tileheight;
+					targetX = (x + layerData.data[idx][1]) * tilewidth;
+					targetY = (y + layerData.data[idx][2]) * tileheight;
 
-					console.log('Target: ', target.x, target.y);
+					console.log('Target: ', targetX, targetY);
 				}else{
 					cellBitmap.gotoAndStop(layerData.data[idx] - 1);
 				}
@@ -698,8 +765,8 @@ var TileMap = (function(){
 
 						case "MovingPlatform":
 							var speed = layerData.speed;
-							worldTile = new MovingTile(cellBitmap, tilewidth, tileheight, target, speed);
-							console.log("movingplatform added with target: ", target);
+							worldTile = new MovingTile(cellBitmap, tilewidth, tileheight, targetX, targetY, speed);
+							console.log("movingplatform added with target: ", targetX, targetY);
 							this.displayobject.addChild(worldTile.displayobject);
 							this.movingtiles.push(worldTile);
 						break;

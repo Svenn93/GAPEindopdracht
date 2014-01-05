@@ -69,7 +69,7 @@ var App = (function(){
 		cameras[0] = map.collisiontiles.concat(map.worldtiles, map.deathzones, map.platformtiles);
 		console.log(cameras[0]);
 		cameras[1] = map.movingtiles;
-		initCameras();
+		//initCameras();
 
 		ticker = createjs.Ticker;
 		ticker.setFPS('60');
@@ -177,6 +177,11 @@ var App = (function(){
 			break;
 			}
 		}
+
+		for (var a = 0; a < map.movingtiles.length; a++){
+			map.movingtiles[a].update();
+		}
+
 		player.update();
 		stage.update();
 	}
