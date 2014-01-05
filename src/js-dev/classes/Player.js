@@ -1,7 +1,7 @@
 /*globals createjs:true*/
 var Player = (function(){
 
-	function Player(x, y, width, height){
+	function Player(x, y){
 		this.x = x;
 		this.y = y;
 		this.velX = 0;
@@ -11,35 +11,58 @@ var Player = (function(){
 		this.gravity = 0.3;
 		this.grounded = false;
 		this.jumping = false;
-		this.width = width;
-		this.height = height;
-		this.shape = new createjs.Shape();
-		this.shape.x = this.x;
-		this.shape.y = this.y;
-
+		this.width = "";
+		this.height = "";
+		this.displayobject = new createjs.Container();
+		this.displayobject.obj = this;
+		this.displayobject.x = this.x;
+		this.displayobject.y = this.y;
+		this.playerImg = new Image();
+		this.playerSprite ="";
 		var self = this;
-		self.draw();
+		this.running = false;
+		self.initCharacter();
 	}
 
-	Player.prototype.draw = function() {
-		this.shape.graphics.f('#79CDCD	');
-		this.shape.graphics.dr(0, 0, this.width, this.height);
-		this.shape.graphics.ef();
+	Player.prototype.initCharacter = function() {
+		var spritesheet = new createjs.SpriteSheet({
+			"images": ["images/character.png"],
+			"frames": {"width":20, "height":38, "count":7, "regX": 0, "regY":0},
+			"animations": {
+				run: {
+					frames:[0, 1, 2, 1],
+					speed: 0.1
+				},
+				jump: {
+					frames: [1, 2],
+					speed: 0.1
+				},
+				idle: {
+					frames: [3]
+				}
+			}
+		});
+
+		this.playerSprite = new createjs.Sprite(spritesheet, "run");
+		this.displayobject.addChild(this.playerSprite);
+		this.displayobject.width = this.width = 20;
+		this.displayobject.height = this.height = 38;
+		console.log(this.displayobject, this.playerSprite, spritesheet);
 	};
 
-	Player.prototype.update = function() {
+	Player.prototype.update = function(friction) {
 		if(this.grounded){
 			this.velY = 0;
 		}
 		this.y += this.velY;
 		this.x += this.velX;
-		this.shape.x = this.x;
-		this.shape.y = this.y;
+		this.displayobject.x = this.x;
+		this.displayobject.y = this.y;
 		//vertraagt de player, als de velocity niet meer geupdate wordt
+	
 		this.velX *= this.friction;
 		this.velY += this.gravity;
 	};
-
 	return Player;
 
 })();

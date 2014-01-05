@@ -5,7 +5,6 @@
 	var menuItems = ["PLAY","LEVELS","CONTROLS"];
 	var timer = 0;
 
-
 	function init()
 	{
 		menu();
@@ -17,6 +16,10 @@
 			animation();
 		},1000);
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 710047627d36d01f4210b26465f361444e6a1f84
 	}
 
 	function animation()
@@ -108,7 +111,9 @@
 		var app = new App();
 	}
 
-init();
+	init();
+
+	
 
 })();
 

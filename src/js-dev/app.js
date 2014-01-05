@@ -9,6 +9,7 @@ var App = (function(){
 	var deathzones;
 	var cameras, cameraVisibilities;
 	var aantalSwitches;
+	var endPoint;
 
 	var tileset;
 	var map;
@@ -54,10 +55,10 @@ var App = (function(){
 
 	function mapLoadedHandler(){
 		world.addChild(map.displayobject);
-		player = new Player(50, 600, 20, 20);
+		player = new Player(50, 600);
 		player.gravity = world.gravity;
 		player.friction = world.friction;
-		world.addChild(player.shape);
+		world.addChild(player.displayobject);
 
 		//collision logica
 		boxes = boxes.concat(map.collisiontiles);
@@ -71,35 +72,14 @@ var App = (function(){
 		cameras[1] = map.movingtiles;
 		initCameras();
 
+		endPoint = map.endPoint;
+
 		ticker = createjs.Ticker;
 		ticker.setFPS('60');
 		ticker.addEventListener('tick', update);
 	}
 
 	function update() {
-
-		if(keys[37]){
-			//links
-			if(player.velX > -player.speed){
-				player.velX --;
-			}
-		}
-
-		if(keys[38]){
-			//omhoog
-			if(player.grounded && !player.jumping){
-				player.grounded = false;
-				player.jumping = true;
-				player.velY = -player.speed * 2;
-			}
-		}
-
-		if(keys[39]){
-			//rechts
-			if(player.velX < player.speed) {
-				player.velX ++;
-			}
-		}
 
 		player.grounded = false;
 
@@ -160,7 +140,9 @@ var App = (function(){
 		}
 
 		for(var l = 0; l < movingboxes.length; l++) {
-			switch(CollisionDetection.checkCollision(player, movingboxes[l], "movingbox")){
+			movingboxes[l].update();
+			var box = movingboxes[l];
+			switch(CollisionDetection.checkCollision(player, box, "movingbox")){
 
 			case "l":
 				player.velX = 0;
@@ -174,10 +156,56 @@ var App = (function(){
 			case "b":
 				player.grounded = true;
 				player.jumping = false;
+				if(box.orientation === "left"){
+					player.velX = -(box.speed);
+					player.friction = 1;
+				}else if(box.orientation === "right"){
+					player.velX = box.speed;
+					player.friction = 1;
+				}
+				//player.velX = movingboxes[l].speed;
 			break;
 			}
 		}
+
+		if(CollisionDetection.checkSuitcaseCollision(player, endPoint)){
+			console.log('GOTTA CATCH EM ALL');
+		}
+
+		if(keys[37]){
+			//links
+			if(player.velX > -player.speed){
+				if(player.friction === 1){
+					player.velX -= 2;
+				}else{
+					player.velX --;
+				}
+			}
+		}
+
+		if(keys[38]){
+			//omhoog
+			if(player.grounded && !player.jumping){
+				player.grounded = false;
+				player.jumping = true;
+				player.velY = -player.speed * 2;
+			}
+		}
+
+		if(keys[39]){
+			//rechts
+			if(player.velX < player.speed) {
+				//Wanneer friction 1 is => zit je op moving platform left of right;
+				if(player.friction === 1){
+					player.velX += 2;
+				}else{
+					player.velX ++;
+				}
+			}
+		}
+
 		player.update();
+		player.friction = world.friction;
 		stage.update();
 	}
 
@@ -205,7 +233,7 @@ var App = (function(){
 
 	function buildBounds(){
 		boxes.push(new Bound(0, world.height-1, world.width, 1));
-		boxes.push(new Bound(0, 0, world.width, 1));
+		//boxes.push(new Bound(0, 0, world.width, 1));
 		boxes.push(new Bound(0, 0, 1, world.height));
 		boxes.push(new Bound(world.width-1, 0, 1, world.height));
 	}

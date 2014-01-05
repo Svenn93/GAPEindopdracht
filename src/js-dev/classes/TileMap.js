@@ -11,12 +11,13 @@ var TileMap = (function(){
 		this.platformtiles = [];
 		this.movingtiles = [];
 		this.displayobject = new createjs.Container();
+		this.endPoint = "";
 		this.draw();
 	}
 
 	Map.prototype.draw = function() {
 		var self = this;
-		var jsonURL = 'maps/level' + 2 + '/level.json';
+		var jsonURL = 'maps/level' + self.currentLevel + '/level.json';
 		/** JSON VAN HET JUISTE LEVEL INLADEN **/
 		$.ajax({
 			context:this,
@@ -72,10 +73,8 @@ var TileMap = (function(){
 	Map.prototype.initLayer = function(layerData, tilesetSheet, tilewidth, tileheight) {
 		var self=this;
 		var platformteller= 0;
-		var target = {
-			x: "",
-			y: ""
-		};
+		var targetX = "";
+		var targetY = "";
 
 		for (var y = 0; y < layerData.height; y++) {
 			for ( var x = 0; x < layerData.width; x++) {
@@ -85,10 +84,10 @@ var TileMap = (function(){
 				if(layerData.data[idx] instanceof Array){
 					console.log('Moving Platform: ', layerData.data[idx]);
 					cellBitmap.gotoAndStop(layerData.data[idx][0] - 1);
-					target.x = (x + layerData.data[idx][1]) * tilewidth;
-					target.y = (y + layerData.data[idx][2]) * tileheight;
+					targetX = (x + layerData.data[idx][1]) * tilewidth;
+					targetY = (y + layerData.data[idx][2]) * tileheight;
 
-					console.log('Target: ', target.x, target.y);
+					console.log('Target: ', targetX, targetY);
 				}else{
 					cellBitmap.gotoAndStop(layerData.data[idx] - 1);
 				}
@@ -109,7 +108,14 @@ var TileMap = (function(){
 							console.log("worldtile added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.worldtiles.push(worldTile);
-							//cameras[0].push(boxWorld);
+						break;
+
+						case "Suitcase":
+							worldTile = new Tile(cellBitmap, name, tilewidth, tileheight);
+							console.log("platform  added");
+							this.displayobject.addChild(worldTile.displayobject);
+							this.worldtiles.push(worldTile);
+							this.endPoint = worldTile;
 						break;
 
 						case "Collision":
@@ -137,8 +143,8 @@ var TileMap = (function(){
 
 						case "MovingPlatform":
 							var speed = layerData.speed;
-							worldTile = new MovingTile(cellBitmap, tilewidth, tileheight, target, speed);
-							console.log("movingplatform added with target: ", target);
+							worldTile = new MovingTile(cellBitmap, tilewidth, tileheight, targetX, targetY, speed);
+							console.log("movingplatform added with target: ", targetX, targetY);
 							this.displayobject.addChild(worldTile.displayobject);
 							this.movingtiles.push(worldTile);
 						break;
