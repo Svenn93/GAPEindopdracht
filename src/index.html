@@ -8,13 +8,24 @@
 <body>
 
 <div id="menu">
-	<ul>
-	<label id="previous">&nbsp;</label>
-		<li>PLAY</li>
-	<label id="next">&nbsp;</label>
+
+	<h1 class="hover">PLAY</h1>
+	<ul id="buttons">
+		<li id="previous">&#60;</li>
+		<li id="next">&#62;</li>
 	</ul>
 
-	<img id="logo" src="images/logo.png" />
+	<ul id="levels">
+		<li>1</li>
+		<li>?</li>
+		<li>?</li>
+		<li>?</li>
+		<li>?</li>
+		<li>?</li>
+		<li>?</li>
+		<li>?</li>
+	</ul>
+
 	<img id="guy" src="images/guyDrink.png" />
 
 	<audio loop="loop" autoplay="autoplay">
@@ -23,6 +34,8 @@
 		Your browser does not support the audio element.
 	</audio>
 </div>
+
+	<div id="stripes">&nbsp;</div>
 	
 
 	<canvas id="cnvs" width="1200" height="800">&nbsp;</canvas>
