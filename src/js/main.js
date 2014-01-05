@@ -11,6 +11,7 @@ var App = (function(){
 	var deathzones;
 	var cameras, cameraVisibilities;
 	var aantalSwitches;
+	var endPoint;
 
 	var tileset;
 	var map;
@@ -56,10 +57,10 @@ var App = (function(){
 
 	function mapLoadedHandler(){
 		world.addChild(map.displayobject);
-		player = new Player(50, 600, 20, 20);
+		player = new Player(50, 600);
 		player.gravity = world.gravity;
 		player.friction = world.friction;
-		world.addChild(player.shape);
+		world.addChild(player.displayobject);
 
 		//collision logica
 		boxes = boxes.concat(map.collisiontiles);
@@ -71,7 +72,9 @@ var App = (function(){
 		cameras[0] = map.collisiontiles.concat(map.worldtiles, map.deathzones, map.platformtiles);
 		console.log(cameras[0]);
 		cameras[1] = map.movingtiles;
-		//initCameras();
+		initCameras();
+
+		endPoint = map.endPoint;
 
 		ticker = createjs.Ticker;
 		ticker.setFPS('60');
@@ -79,29 +82,6 @@ var App = (function(){
 	}
 
 	function update() {
-
-		if(keys[37]){
-			//links
-			if(player.velX > -player.speed){
-				player.velX --;
-			}
-		}
-
-		if(keys[38]){
-			//omhoog
-			if(player.grounded && !player.jumping){
-				player.grounded = false;
-				player.jumping = true;
-				player.velY = -player.speed * 2;
-			}
-		}
-
-		if(keys[39]){
-			//rechts
-			if(player.velX < player.speed) {
-				player.velX ++;
-			}
-		}
 
 		player.grounded = false;
 
@@ -162,7 +142,9 @@ var App = (function(){
 		}
 
 		for(var l = 0; l < movingboxes.length; l++) {
-			switch(CollisionDetection.checkCollision(player, movingboxes[l], "movingbox")){
+			movingboxes[l].update();
+			var box = movingboxes[l];
+			switch(CollisionDetection.checkCollision(player, box, "movingbox")){
 
 			case "l":
 				player.velX = 0;
@@ -176,15 +158,56 @@ var App = (function(){
 			case "b":
 				player.grounded = true;
 				player.jumping = false;
+				if(box.orientation === "left"){
+					player.velX = -(box.speed);
+					player.friction = 1;
+				}else if(box.orientation === "right"){
+					player.velX = box.speed;
+					player.friction = 1;
+				}
+				//player.velX = movingboxes[l].speed;
 			break;
 			}
 		}
 
-		for (var a = 0; a < map.movingtiles.length; a++){
-			map.movingtiles[a].update();
+		if(CollisionDetection.checkSuitcaseCollision(player, endPoint)){
+			console.log('GOTTA CATCH EM ALL');
+		}
+
+		if(keys[37]){
+			//links
+			if(player.velX > -player.speed){
+				if(player.friction === 1){
+					player.velX -= 2;
+				}else{
+					player.velX --;
+				}
+			}
+		}
+
+		if(keys[38]){
+			//omhoog
+			if(player.grounded && !player.jumping){
+				player.grounded = false;
+				player.jumping = true;
+				player.velY = -player.speed * 2;
+			}
+		}
+
+		if(keys[39]){
+			//rechts
+			if(player.velX < player.speed) {
+				//Wanneer friction 1 is => zit je op moving platform left of right;
+				if(player.friction === 1){
+					player.velX += 2;
+				}else{
+					player.velX ++;
+				}
+			}
 		}
 
 		player.update();
+		player.friction = world.friction;
 		stage.update();
 	}
 
@@ -212,7 +235,7 @@ var App = (function(){
 
 	function buildBounds(){
 		boxes.push(new Bound(0, world.height-1, world.width, 1));
-		boxes.push(new Bound(0, 0, world.width, 1));
+		//boxes.push(new Bound(0, 0, world.width, 1));
 		boxes.push(new Bound(0, 0, 1, world.height));
 		boxes.push(new Bound(world.width-1, 0, 1, world.height));
 	}
@@ -306,6 +329,17 @@ var CollisionDetection = (function(){
 		}
 	};
 
+	CollisionDetection.checkSuitcaseCollision = function(shapeA, shapeB){
+		var vX = (shapeA.x + (shapeA.width/2)) - (shapeB.x + (shapeB.width/2));
+		var vY = (shapeA.y + (shapeA.height/2)) - (shapeB.y + (shapeB.height/2));
+		var hWidths = (shapeA.width/2) + (shapeB.width/2);
+		var hHeights = (shapeA.height/2) + (shapeB.height/2);
+
+		if(Math.abs(vX) < hWidths && Math.abs(vY) < hHeights){
+			return true;
+		}
+	};
+
 	return CollisionDetection;
 
 })();
@@ -386,7 +420,6 @@ var MovingTile = (function(){
 		this.displayobject.width = this.width;
 		this.displayobject.height = this.height;
 		this.sprite.x = 0;
-		this.targetReached = false;
 		this.sprite.y = 0;
 		this.orientation = "";
 		this.displayobject.addChild(this.sprite);
@@ -424,7 +457,6 @@ var MovingTile = (function(){
 
 			if(this.x < this.targetX) {
 				this.x += this.speed;
-				console.log(this.x, this.targetX);
 			}else if(this.x >= this.targetX) {
 				this.orientation = "left";
 				temp = this.targetX;
@@ -461,17 +493,6 @@ var MovingTile = (function(){
 
 		//createjs.Tween.get(this.displayobject, {override:true, loop:true}).to({x:this.target.x, y: this.target.y}, 2000).to({x:this.originalX, y:this.originalY}, 2000).addEventListener("change", this.setPosition.bind(this));
 		//createjs.Tween.get(self.displayobject, {override:true, loop:true}).wait(2000).to({x:self.originalX, y: self.originalY}, 2000).addEventListener("change", self.setPosition.bind(self));
-	};
-
-	MovingTile.prototype.moveToOrigin = function() {
-		var self = this;
-		console.log(self);
-		
-	};
-
-	MovingTile.prototype.setPosition = function() {
-		this.x = this.displayobject.x;
-		this.y = this.displayobject.y;
 	};
 
 	return MovingTile;
@@ -531,7 +552,7 @@ var Platform = (function(){
 /*globals createjs:true*/
 var Player = (function(){
 
-	function Player(x, y, width, height){
+	function Player(x, y){
 		this.x = x;
 		this.y = y;
 		this.velX = 0;
@@ -541,35 +562,58 @@ var Player = (function(){
 		this.gravity = 0.3;
 		this.grounded = false;
 		this.jumping = false;
-		this.width = width;
-		this.height = height;
-		this.shape = new createjs.Shape();
-		this.shape.x = this.x;
-		this.shape.y = this.y;
-
+		this.width = "";
+		this.height = "";
+		this.displayobject = new createjs.Container();
+		this.displayobject.obj = this;
+		this.displayobject.x = this.x;
+		this.displayobject.y = this.y;
+		this.playerImg = new Image();
+		this.playerSprite ="";
 		var self = this;
-		self.draw();
+		this.running = false;
+		self.initCharacter();
 	}
 
-	Player.prototype.draw = function() {
-		this.shape.graphics.f('#79CDCD	');
-		this.shape.graphics.dr(0, 0, this.width, this.height);
-		this.shape.graphics.ef();
+	Player.prototype.initCharacter = function() {
+		var spritesheet = new createjs.SpriteSheet({
+			"images": ["images/character.png"],
+			"frames": {"width":20, "height":38, "count":7, "regX": 0, "regY":0},
+			"animations": {
+				run: {
+					frames:[0, 1, 2, 1],
+					speed: 0.1
+				},
+				jump: {
+					frames: [1, 2],
+					speed: 0.1
+				},
+				idle: {
+					frames: [3]
+				}
+			}
+		});
+
+		this.playerSprite = new createjs.Sprite(spritesheet, "run");
+		this.displayobject.addChild(this.playerSprite);
+		this.displayobject.width = this.width = 20;
+		this.displayobject.height = this.height = 38;
+		console.log(this.displayobject, this.playerSprite, spritesheet);
 	};
 
-	Player.prototype.update = function() {
+	Player.prototype.update = function(friction) {
 		if(this.grounded){
 			this.velY = 0;
 		}
 		this.y += this.velY;
 		this.x += this.velX;
-		this.shape.x = this.x;
-		this.shape.y = this.y;
+		this.displayobject.x = this.x;
+		this.displayobject.y = this.y;
 		//vertraagt de player, als de velocity niet meer geupdate wordt
+	
 		this.velX *= this.friction;
 		this.velY += this.gravity;
 	};
-
 	return Player;
 
 })();
@@ -641,6 +685,7 @@ var TileMap = (function(){
 		this.platformtiles = [];
 		this.movingtiles = [];
 		this.displayobject = new createjs.Container();
+		this.endPoint = "";
 		this.draw();
 	}
 
@@ -737,7 +782,14 @@ var TileMap = (function(){
 							console.log("worldtile added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.worldtiles.push(worldTile);
-							//cameras[0].push(boxWorld);
+						break;
+
+						case "Suitcase":
+							worldTile = new Tile(cellBitmap, name, tilewidth, tileheight);
+							console.log("platform  added");
+							this.displayobject.addChild(worldTile.displayobject);
+							this.worldtiles.push(worldTile);
+							this.endPoint = worldTile;
 						break;
 
 						case "Collision":
@@ -831,7 +883,6 @@ var World =(function(){
 	var menuItems = ["PLAY","LEVELS","SCORES"];
 	var timer = 0;
 
-
 	function init()
 	{
 		menu();
@@ -839,6 +890,8 @@ var World =(function(){
 		setInterval(function(){
 			animation();
 		},1000);
+
+
 	}
 
 	function animation()
@@ -921,7 +974,9 @@ var World =(function(){
 		var app = new App();
 	}
 
-init();
+	init();
+
+	
 
 })();
 

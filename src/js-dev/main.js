@@ -5,7 +5,6 @@
 	var menuItems = ["PLAY","LEVELS","SCORES"];
 	var timer = 0;
 
-
 	function init()
 	{
 		menu();
@@ -13,6 +12,8 @@
 		setInterval(function(){
 			animation();
 		},1000);
+
+
 	}
 
 	function animation()
@@ -95,7 +96,9 @@
 		var app = new App();
 	}
 
-init();
+	init();
+
+	
 
 })();
 

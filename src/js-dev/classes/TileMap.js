@@ -11,6 +11,7 @@ var TileMap = (function(){
 		this.platformtiles = [];
 		this.movingtiles = [];
 		this.displayobject = new createjs.Container();
+		this.endPoint = "";
 		this.draw();
 	}
 
@@ -107,7 +108,14 @@ var TileMap = (function(){
 							console.log("worldtile added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.worldtiles.push(worldTile);
-							//cameras[0].push(boxWorld);
+						break;
+
+						case "Suitcase":
+							worldTile = new Tile(cellBitmap, name, tilewidth, tileheight);
+							console.log("platform  added");
+							this.displayobject.addChild(worldTile.displayobject);
+							this.worldtiles.push(worldTile);
+							this.endPoint = worldTile;
 						break;
 
 						case "Collision":

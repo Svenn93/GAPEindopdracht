@@ -16,7 +16,6 @@ var MovingTile = (function(){
 		this.displayobject.width = this.width;
 		this.displayobject.height = this.height;
 		this.sprite.x = 0;
-		this.targetReached = false;
 		this.sprite.y = 0;
 		this.orientation = "";
 		this.displayobject.addChild(this.sprite);
@@ -54,7 +53,6 @@ var MovingTile = (function(){
 
 			if(this.x < this.targetX) {
 				this.x += this.speed;
-				console.log(this.x, this.targetX);
 			}else if(this.x >= this.targetX) {
 				this.orientation = "left";
 				temp = this.targetX;
@@ -91,17 +89,6 @@ var MovingTile = (function(){
 
 		//createjs.Tween.get(this.displayobject, {override:true, loop:true}).to({x:this.target.x, y: this.target.y}, 2000).to({x:this.originalX, y:this.originalY}, 2000).addEventListener("change", this.setPosition.bind(this));
 		//createjs.Tween.get(self.displayobject, {override:true, loop:true}).wait(2000).to({x:self.originalX, y: self.originalY}, 2000).addEventListener("change", self.setPosition.bind(self));
-	};
-
-	MovingTile.prototype.moveToOrigin = function() {
-		var self = this;
-		console.log(self);
-		
-	};
-
-	MovingTile.prototype.setPosition = function() {
-		this.x = this.displayobject.x;
-		this.y = this.displayobject.y;
 	};
 
 	return MovingTile;
