@@ -16,7 +16,7 @@ var TileMap = (function(){
 
 	Map.prototype.draw = function() {
 		var self = this;
-		var jsonURL = 'maps/level' + 2 + '/level.json';
+		var jsonURL = 'maps/level' + self.currentLevel + '/level.json';
 		/** JSON VAN HET JUISTE LEVEL INLADEN **/
 		$.ajax({
 			context:this,

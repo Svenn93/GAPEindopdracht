@@ -386,9 +386,11 @@ var MovingTile = (function(){
 	}
 
 	MovingTile.prototype.moveToTarget = function() {
-		var self = this;
-		console.log(self);
-		createjs.Tween.get(self.displayobject, {override:true, loop:true}).to({x:self.target.x, y: self.target.y}, 2000).to({x:self.originalX, y:self.originalY}, 2000).addEventListener("change", self.setPosition.bind(self));
+		if(this.x < this.target.x){
+			this.x += -0.8;
+		}
+
+		//createjs.Tween.get(this.displayobject, {override:true, loop:true}).to({x:this.target.x, y: this.target.y}, 2000).to({x:this.originalX, y:this.originalY}, 2000).addEventListener("change", this.setPosition.bind(this));
 		//createjs.Tween.get(self.displayobject, {override:true, loop:true}).wait(2000).to({x:self.originalX, y: self.originalY}, 2000).addEventListener("change", self.setPosition.bind(self));
 	};
 
@@ -575,7 +577,7 @@ var TileMap = (function(){
 
 	Map.prototype.draw = function() {
 		var self = this;
-		var jsonURL = 'maps/level' + 2 + '/level.json';
+		var jsonURL = 'maps/level' + self.currentLevel + '/level.json';
 		/** JSON VAN HET JUISTE LEVEL INLADEN **/
 		$.ajax({
 			context:this,
