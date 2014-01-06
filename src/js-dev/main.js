@@ -9,8 +9,8 @@
 	{
 		menu();
 		$("#levels").hide();
-
-		console.log("hello");
+		$("#controls").hide();
+		$("canvas").hide();
 
 		setInterval(function(){
 			animation();
@@ -43,6 +43,8 @@
 					$("h1").html(menuItems[2]);
 					$("h1").removeClass("hover");
 					$("#buttons").css("width","1200");
+					$("#menu").css("margin-top","10%");
+					$("#controls").fadeIn();
 				break;
 
 				case menuItems[1]:
@@ -54,6 +56,7 @@
 				break;
 
 				case menuItems[2]:
+					$(".buttons").slideToggle();
 					$("h1").html(menuItems[1]);
 					$("#buttons").css("width","1000");
 					$("#levels").fadeIn();
@@ -75,12 +78,15 @@
 				break;
 
 				case menuItems[1]:
+					$(".buttons").slideToggle();
+					$("#controls").fadeIn();
 					$("h1").html(menuItems[2]);
 					$("#buttons").css("width","1200");
 					$("#levels").fadeOut();
 				break;
 
 				case menuItems[2]:
+					$("#controls").fadeOut();
 					$("h1").html(menuItems[0]);
 					$("#buttons").css("width","800");
 					$("h1").addClass("hover");
@@ -90,20 +96,28 @@
 		});
 
 		$("h1").click(function(){
-			if($(this).html() === "PLAY")
+			if($(this).html() === menuItems[0])
 			{
-					console.log("play game");
-					$("#menu").remove();
-					$("canvas").css("display","block");
-					startGame();
+					startGame(1);
 			}
+		});
+
+		$("#levels li").click(function(){
+
+			if ($(this).hasClass("show"))
+			{
+				startGame($(this).index() + 1);
+			}
+
 		});
 
 	}
 
-	function startGame()
+	function startGame(level)
 	{
-		var app = new App();
+		$("#menu").remove();
+		var app = new App(level);
+		$("canvas").show();
 	}
 
 	init();

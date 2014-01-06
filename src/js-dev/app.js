@@ -18,7 +18,7 @@ var App = (function(){
 	var square;
 
 
-	function App(){
+	function App(level){
 		boxes = [];
 		platforms = [];
 		movingboxes = [];
@@ -30,7 +30,7 @@ var App = (function(){
 		cameras[2] = [];
 		aantalSwitches = 0;
 		cameraVisibilities = [];
-		currentLevel = 1;
+		currentLevel = level;
 
 		stage = new createjs.Stage('cnvs');
 		world = new World(1200, 800);

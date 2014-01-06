@@ -66,14 +66,18 @@ body:-webkit-full-screen, body:-moz-full-screen,body:full-screen {
 
 canvas
 {
-	display: none;
+	display: block;
 	margin-left: auto;
 	margin-right: auto;
+	transition: all .2s linear;
+    -webkit-transition: all .2s linear;
+    -moz-transition: all .2s linear;
+    -o-transition: all .2s linear;
 }
 
 #menu{
-		margin-top: 20%;
-		transition: all .2s linear;
+	margin-top: 20%;
+	transition: all .2s linear;
     -webkit-transition: all .2s linear;
     -moz-transition: all .2s linear;
     -o-transition: all .2s linear;
@@ -155,7 +159,7 @@ h1{
 
 }
 
-#levels
+.buttons
 {
 	opacity: 0.9;
 	margin-top: 100px;
@@ -164,8 +168,7 @@ h1{
 	margin-right: auto;
 }
 
-#levels li{
-	cursor: pointer;
+.buttons li{
 	font-size: 1.3em;
 	padding-top: 30px;
 	border-radius: 10px;
@@ -177,22 +180,48 @@ h1{
 	margin-left: 50px;
 	display: inline-block;
 	list-style-type: none;
-
-
-
-}
-
-#levels li:nth-child(1)
-{
-	background-image: url("images/level1.png");
-	background-repeat: no-repeat;
-	background-position:center;
-
+	
 	text-shadow:
     -3px -3px 0 #000,
     3px -3px 0 #000,
     -3px 3px 0 #000,
     3px 3px 0 #000;  
+}
+
+#levels li span{
+
+	font-size: 0.5em;
+}
+
+.show{
+	transition: all .1s linear;
+    -webkit-transition: all .1s linear;
+    -moz-transition: all .1s linear;
+    -o-transition: all .1s linear;
+}
+
+.show:hover{
+	-webkit-transform: scale(1.1);
+}
+
+#controls li span{
+	font-size: 0.2em;
+	text-shadow:
+    -2px -2px 0 #000,
+    2px -2px 0 #000,
+    -2px 2px 0 #000,
+    2px 2px 0 #000;  
+}
+
+.show
+{
+	cursor: pointer;
+}
+
+.show:nth-child(1){
+	background-image: url("images/level1.png");
+	background-repeat: no-repeat;
+	background-position:center;
 }
 
 
