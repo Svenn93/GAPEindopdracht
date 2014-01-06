@@ -29,6 +29,7 @@ var TileMap = (function(){
 	};
 
 	Map.prototype.jsonLoaded = function( data ){
+		console.log('json loaded');
 		var self = this;
 		this.mapData = data;
 		this.tileset = new Image();

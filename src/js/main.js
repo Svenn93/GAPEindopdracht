@@ -755,6 +755,7 @@ var TileMap = (function(){
 	};
 
 	Map.prototype.jsonLoaded = function( data ){
+		console.log('json loaded');
 		var self = this;
 		this.mapData = data;
 		this.tileset = new Image();
@@ -1031,7 +1032,7 @@ var World =(function(){
 			if($(this).html() === menuItems[0])
 			{
 					//logica voor het ophalen van de local storage
-					startGame(2);
+					startGame(1);
 
 			}
 		});
