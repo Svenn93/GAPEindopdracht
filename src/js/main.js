@@ -1053,13 +1053,12 @@ var World =(function(){
 
 	function changeAudio(track)
 	{
-		var source = '<audio>';
-		source +=  '<source id="audio_player_ogv" src=audio/"' + track + '.ogv"  type="audio/ogg" />';
-		source +=  '<source id="audio_player_ogv" src=audio/"' + track + '.mp3"  type="audio/mpeg" />';
-		source +=  '</audio>';
-		$('audio').html(source);
-		var aud = $('audio').get(0);
-		aud.play();
+		var myAudio=$("#audio");
+        var audioSub = myAudio.get(0);
+        var playmode=audioSub.paused;
+		myAudio.attr('src','audio/'+ track + '.ogg');
+        playmode = true;
+        audioSub.play();
 	}
 
 	init();
