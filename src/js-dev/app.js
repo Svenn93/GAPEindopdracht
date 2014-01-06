@@ -156,6 +156,8 @@ var App = (function(){
 			case "b":
 				player.grounded = true;
 				player.jumping = false;
+				player.movingPlatformSpeed = box.speed;
+				player.onMovingPlatform = true;
 				if(box.orientation === "left"){
 					player.velX = -(box.speed);
 					player.friction = 1;

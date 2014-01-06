@@ -158,6 +158,8 @@ var App = (function(){
 			case "b":
 				player.grounded = true;
 				player.jumping = false;
+				player.movingPlatformSpeed = box.speed;
+				player.onMovingPlatform = true;
 				if(box.orientation === "left"){
 					player.velX = -(box.speed);
 					player.friction = 1;
@@ -570,8 +572,10 @@ var Player = (function(){
 		this.displayobject.y = this.y;
 		this.playerImg = new Image();
 		this.playerSprite ="";
+		this.animation = "";
 		var self = this;
-		this.running = false;
+		this.movingPlatformSpeed = 0;
+		this.onMovingPlatform = false;
 		self.initCharacter();
 	}
 
@@ -580,8 +584,12 @@ var Player = (function(){
 			"images": ["images/character.png"],
 			"frames": {"width":20, "height":38, "count":7, "regX": 0, "regY":0},
 			"animations": {
-				run: {
+				runRight: {
 					frames:[0, 1, 2, 1],
+					speed: 0.1
+				},
+				runLeft: {
+					frames:[6, 5, 4, 5],
 					speed: 0.1
 				},
 				jump: {
@@ -594,9 +602,11 @@ var Player = (function(){
 			}
 		});
 
-		this.playerSprite = new createjs.Sprite(spritesheet, "run");
+		this.playerSprite = new createjs.Sprite(spritesheet, "idle");
+		this.animation = "idle";
+		this.playerSprite.x = 1;
 		this.displayobject.addChild(this.playerSprite);
-		this.displayobject.width = this.width = 20;
+		this.displayobject.width = this.width = 18;
 		this.displayobject.height = this.height = 38;
 		console.log(this.displayobject, this.playerSprite, spritesheet);
 	};
@@ -613,6 +623,48 @@ var Player = (function(){
 	
 		this.velX *= this.friction;
 		this.velY += this.gravity;
+
+		//wanneer de movingspeed = 10 dan staat player NIET op platform, platforms gaan zo rap niet
+
+
+
+		if(!this.onMovingPlatform){
+			if(this.velX > 0.1){
+				if(this.animation !== 'runRight'){
+					this.playerSprite.gotoAndPlay('runRight');
+					this.animation = 'runRight';
+				}
+			}else if(this.velX < -0.1){
+				if(this.animation !== 'runLeft'){
+					this.playerSprite.gotoAndPlay('runLeft');
+					this.animation = 'runLeft';
+				}
+			}else if(this.velX <= 0.1 && this.velX >= -0.1){
+				if(this.animation !== 'idle'){
+					this.playerSprite.gotoAndPlay('idle');
+					this.animation = 'idle';
+				}
+			}
+			//player zit op movingplatform
+		}else {
+			if(this.velX > (this.movingPlatformSpeed + 0.1)){
+				if(this.animation !== 'runRight'){
+					this.playerSprite.gotoAndPlay('runRight');
+					this.animation = 'runRight';
+				}
+			}else if(this.velX < -(this.movingPlatformSpeed + 0.1)){
+				if(this.animation !== 'runLeft'){
+					this.playerSprite.gotoAndPlay('runLeft');
+					this.animation = 'runLeft';
+				}
+			}else{
+				if(this.animation !== 'idle'){
+					this.playerSprite.gotoAndPlay('idle');
+					this.animation = 'idle';
+				}
+			}
+		}
+		
 	};
 	return Player;
 
