@@ -98,6 +98,7 @@
 		$("h1").click(function(){
 			if($(this).html() === menuItems[0])
 			{
+					//logica voor het ophalen van de local storage
 					startGame(2);
 			}
 		});

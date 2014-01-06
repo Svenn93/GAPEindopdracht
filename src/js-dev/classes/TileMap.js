@@ -10,6 +10,7 @@ var TileMap = (function(){
 		this.deathzones = [];
 		this.platformtiles = [];
 		this.movingtiles = [];
+		this.checkpoints = [];
 		this.displayobject = new createjs.Container();
 		this.endPoint = "";
 		this.draw();
@@ -62,10 +63,6 @@ var TileMap = (function(){
 			}
 		}
 
-		if(this.weather === "snowy"){
-			console.log('het sneeuwt');
-		}
-
 		bean.fire(self, 'mapLoaded');
 	};
 
@@ -81,14 +78,13 @@ var TileMap = (function(){
 				var cellBitmap = new createjs.Sprite(tilesetSheet);
 				var idx = x + y * layerData.width;
 
+				//wanneer het een movingtile is, array bevat spritenummer, x-target en y-target
 				if(layerData.data[idx] instanceof Array){
-					console.log('Moving Platform: ', layerData.data[idx]);
 					cellBitmap.gotoAndStop(layerData.data[idx][0] - 1);
 					targetX = (x + layerData.data[idx][1]) * tilewidth;
 					targetY = (y + layerData.data[idx][2]) * tileheight;
-
-					console.log('Target: ', targetX, targetY);
 				}else{
+					//wanneer het geen movingtile is
 					cellBitmap.gotoAndStop(layerData.data[idx] - 1);
 				}
 				
@@ -149,6 +145,12 @@ var TileMap = (function(){
 							this.movingtiles.push(worldTile);
 						break;
 
+						case "Checkpoints":
+							worldTile = new Tile(cellBitmap, name, tilewidth, tileheight);
+							console.log("Checkpoint added");
+							this.displayobject.addChild(worldTile.displayobject);
+							this.checkpoints.push(worldTile);
+						break;
 					}
 				}
 			}
