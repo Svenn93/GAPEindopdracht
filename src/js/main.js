@@ -9,6 +9,7 @@ var App = (function(){
 	var ticker;
 	var world;
 	var deathzones;
+	var checkpoints;
 	var cameras, cameraVisibilities;
 	var aantalSwitches;
 	var endPoint;
@@ -16,8 +17,12 @@ var App = (function(){
 	var tileset;
 	var map;
 
+	var spawnX;
+	var spawnY;
+	var onCheckpoint;
+
 	var currentLevel;
-	var square;
+	var currentCheckpoint;
 
 
 	function App(level){
@@ -27,12 +32,17 @@ var App = (function(){
 		keys = [];
 		deathzones = [];
 		cameras = [];
+		checkpoints = [];
 		cameras[0] = [];
 		cameras[1] = [];
 		cameras[2] = [];
 		aantalSwitches = 0;
 		cameraVisibilities = [];
 		currentLevel = level;
+		currentCheckpoint = -1;
+		spawnX = 0;
+		spawnY = 0;
+		onCheckpoint = false;
 
 		stage = new createjs.Stage('cnvs');
 		world = new World(1200, 800);
@@ -57,7 +67,9 @@ var App = (function(){
 
 	function mapLoadedHandler(){
 		world.addChild(map.displayobject);
-		player = new Player(50, 600);
+		spawnX = map.spawnX;
+		spawnY = map.spawnY;
+		player = new Player(spawnX, spawnY);
 		player.gravity = world.gravity;
 		player.friction = world.friction;
 		world.addChild(player.displayobject);
@@ -67,7 +79,7 @@ var App = (function(){
 		platforms = map.platformtiles;
 		deathzones = map.deathzones;
 		movingboxes = map.movingtiles;
-
+		checkpoints = map.checkpoints;
 		//camera logica
 		cameras[0] = map.collisiontiles.concat(map.worldtiles, map.deathzones, map.platformtiles);
 		console.log(cameras[0]);
@@ -119,24 +131,24 @@ var App = (function(){
 
 			case "l":
 				player.velX = 0;
-				player.x = 50;
-				player.y = 600;
+				player.x = spawnX;
+				player.y = spawnY;
 			break;
 			case "r":
 				player.velX = 0;
-				player.x = 50;
-				player.y = 600;
+				player.x = spawnX;
+				player.y = spawnY;
 			break;
 			case "t":
 				player.velY *= -1;
-				player.x = 50;
-				player.y = 600;
+				player.x = spawnX;
+				player.y = spawnY;
 			break;
 			case "b":
 				player.grounded = true;
 				player.jumping = false;
-				player.x = 50;
-				player.y = 600;
+				player.x = spawnX;
+				player.y = spawnY;
 			break;
 			}
 		}
@@ -172,8 +184,21 @@ var App = (function(){
 			}
 		}
 
-		if(CollisionDetection.checkSuitcaseCollision(player, endPoint)){
+		if(CollisionDetection.checkCollisionSimple(player, endPoint)){
 			console.log('GOTTA CATCH EM ALL');
+		}
+
+		
+
+		if(keys[32]){
+			for (var b = 0; b < checkpoints.length; b++){
+			if(CollisionDetection.checkCollisionSimple(player, checkpoints[b])){
+				currentCheckpoint = checkpoints[b];
+				spawnX = currentCheckpoint.x;
+				spawnY = currentCheckpoint.y;
+				checkpoints[checkpoints.indexOf(currentCheckpoint)].update();
+			}
+		}
 		}
 
 		if(keys[37]){
@@ -280,6 +305,37 @@ var Bound = (function(){
 
 })();
 
+/*globals createjs:true*/
+var Checkpoint = (function(){
+
+	function Checkpoint(sprite, tilewidth, tileheight){
+		this.sprite = sprite;
+		this.width = tilewidth;
+		this.height = tileheight;
+		this.displayobject = new createjs.Container();
+		this.x = this.displayobject.x = this.sprite.x;
+		this.y = this.displayobject.y = this.sprite.y;
+		this.displayobject.obj = this;
+		this.displayobject.width = this.width;
+		this.displayobject.height = this.height;
+		this.sprite.x = 0;
+		this.sprite.y = 0;
+		this.saved = false;
+		this.displayobject.addChild(this.sprite);
+	}
+
+	Checkpoint.prototype.update = function() {
+		if(!this.saved){
+			this.sprite.gotoAndStop(this.sprite.currentFrame - 2);
+			this.saved = true;
+		}
+	};
+
+	return Checkpoint;
+
+})();
+
+
 var CollisionDetection = (function(){
 
 	function CollisionDetection(){
@@ -331,7 +387,7 @@ var CollisionDetection = (function(){
 		}
 	};
 
-	CollisionDetection.checkSuitcaseCollision = function(shapeA, shapeB){
+	CollisionDetection.checkCollisionSimple = function(shapeA, shapeB){
 		var vX = (shapeA.x + (shapeA.width/2)) - (shapeB.x + (shapeB.width/2));
 		var vY = (shapeA.y + (shapeA.height/2)) - (shapeB.y + (shapeB.height/2));
 		var hWidths = (shapeA.width/2) + (shapeB.width/2);
@@ -339,6 +395,8 @@ var CollisionDetection = (function(){
 
 		if(Math.abs(vX) < hWidths && Math.abs(vY) < hHeights){
 			return true;
+		}else{
+			return false;
 		}
 	};
 
@@ -702,15 +760,13 @@ var Reward = (function(){
 /*globals createjs:true*/
 var Tile = (function(){
 
-	function Tile(sprite, name, tilewidth, tileheight){
+	function Tile(sprite, tilewidth, tileheight){
 		this.sprite = sprite;
-		this.name = name;
 		this.width = tilewidth;
 		this.height = tileheight;
 		this.displayobject = new createjs.Container();
 		this.x = this.displayobject.x = this.sprite.x;
 		this.y = this.displayobject.y = this.sprite.y;
-		this.displayobject.name = name;
 		this.displayobject.obj = this;
 		this.displayobject.width = this.width;
 		this.displayobject.height = this.height;
@@ -724,12 +780,11 @@ var Tile = (function(){
 })();
 
 
-/*globals createjs:true, Tile:true, MovingTile:true, bean:true*/
+/*globals createjs:true, Tile:true, MovingTile:true, Checkpoint:true, bean:true*/
 var TileMap = (function(){
 
 	function Map(currentLevel){
 		this.currentLevel = currentLevel;
-		this.weather = "";
 		this.mapData = "";
 		this.worldtiles = [];
 		this.collisiontiles = [];
@@ -739,6 +794,8 @@ var TileMap = (function(){
 		this.checkpoints = [];
 		this.displayobject = new createjs.Container();
 		this.endPoint = "";
+		this.spawnX = "";
+		this.spawnY = "";
 		this.draw();
 	}
 
@@ -770,7 +827,6 @@ var TileMap = (function(){
 		console.log(this);
 		var w = this.mapData.tilesets[0].tilewidth;
 		var h = this.mapData.tilesets[0].tileheight;
-		this.weather = this.mapData.weather;
 		var imageData = {
 			images: [ this.tileset ],
 			frames: {
@@ -789,6 +845,9 @@ var TileMap = (function(){
 				this.initLayer(layerData, tilesetSheet, this.mapData.tilewidth, this.mapData.tileheight);
 			}
 		}
+
+		this.spawnX = this.mapData.spawnpoint[0];
+		this.spawnY = this.mapData.spawnpoint[1];
 
 		bean.fire(self, 'mapLoaded');
 	};
@@ -827,14 +886,14 @@ var TileMap = (function(){
 					{
 						case "World":
 
-							worldTile = new Tile(cellBitmap, name, tilewidth, tileheight);
+							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
 							console.log("worldtile added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.worldtiles.push(worldTile);
 						break;
 
 						case "Suitcase":
-							worldTile = new Tile(cellBitmap, name, tilewidth, tileheight);
+							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
 							console.log("platform  added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.worldtiles.push(worldTile);
@@ -843,7 +902,7 @@ var TileMap = (function(){
 
 						case "Collision":
 
-							worldTile = new Tile(cellBitmap, name, tilewidth, tileheight);
+							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
 							console.log("collision worldtile added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.collisiontiles.push(worldTile);
@@ -851,14 +910,14 @@ var TileMap = (function(){
 						break;
 
 						case "Deadzone":
-							worldTile = new Tile(cellBitmap, name, tilewidth, tileheight);
+							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
 							console.log("deadzone added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.deathzones.push(worldTile);
 						break;
 
 						case "Platform":
-							worldTile = new Tile(cellBitmap, name, tilewidth, tileheight);
+							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
 							console.log("platform  added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.platformtiles.push(worldTile);
@@ -873,7 +932,7 @@ var TileMap = (function(){
 						break;
 
 						case "Checkpoints":
-							worldTile = new Tile(cellBitmap, name, tilewidth, tileheight);
+							worldTile = new Checkpoint(cellBitmap, tilewidth, tileheight);
 							console.log("Checkpoint added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.checkpoints.push(worldTile);

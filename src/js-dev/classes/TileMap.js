@@ -1,9 +1,8 @@
-/*globals createjs:true, Tile:true, MovingTile:true, bean:true*/
+/*globals createjs:true, Tile:true, MovingTile:true, Checkpoint:true, bean:true*/
 var TileMap = (function(){
 
 	function Map(currentLevel){
 		this.currentLevel = currentLevel;
-		this.weather = "";
 		this.mapData = "";
 		this.worldtiles = [];
 		this.collisiontiles = [];
@@ -13,6 +12,8 @@ var TileMap = (function(){
 		this.checkpoints = [];
 		this.displayobject = new createjs.Container();
 		this.endPoint = "";
+		this.spawnX = "";
+		this.spawnY = "";
 		this.draw();
 	}
 
@@ -44,7 +45,6 @@ var TileMap = (function(){
 		console.log(this);
 		var w = this.mapData.tilesets[0].tilewidth;
 		var h = this.mapData.tilesets[0].tileheight;
-		this.weather = this.mapData.weather;
 		var imageData = {
 			images: [ this.tileset ],
 			frames: {
@@ -63,6 +63,9 @@ var TileMap = (function(){
 				this.initLayer(layerData, tilesetSheet, this.mapData.tilewidth, this.mapData.tileheight);
 			}
 		}
+
+		this.spawnX = this.mapData.spawnpoint[0];
+		this.spawnY = this.mapData.spawnpoint[1];
 
 		bean.fire(self, 'mapLoaded');
 	};
@@ -101,14 +104,14 @@ var TileMap = (function(){
 					{
 						case "World":
 
-							worldTile = new Tile(cellBitmap, name, tilewidth, tileheight);
+							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
 							console.log("worldtile added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.worldtiles.push(worldTile);
 						break;
 
 						case "Suitcase":
-							worldTile = new Tile(cellBitmap, name, tilewidth, tileheight);
+							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
 							console.log("platform  added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.worldtiles.push(worldTile);
@@ -117,7 +120,7 @@ var TileMap = (function(){
 
 						case "Collision":
 
-							worldTile = new Tile(cellBitmap, name, tilewidth, tileheight);
+							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
 							console.log("collision worldtile added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.collisiontiles.push(worldTile);
@@ -125,14 +128,14 @@ var TileMap = (function(){
 						break;
 
 						case "Deadzone":
-							worldTile = new Tile(cellBitmap, name, tilewidth, tileheight);
+							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
 							console.log("deadzone added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.deathzones.push(worldTile);
 						break;
 
 						case "Platform":
-							worldTile = new Tile(cellBitmap, name, tilewidth, tileheight);
+							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
 							console.log("platform  added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.platformtiles.push(worldTile);
@@ -147,7 +150,7 @@ var TileMap = (function(){
 						break;
 
 						case "Checkpoints":
-							worldTile = new Tile(cellBitmap, name, tilewidth, tileheight);
+							worldTile = new Checkpoint(cellBitmap, tilewidth, tileheight);
 							console.log("Checkpoint added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.checkpoints.push(worldTile);

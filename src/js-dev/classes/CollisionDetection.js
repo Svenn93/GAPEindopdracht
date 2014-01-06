@@ -49,7 +49,7 @@ var CollisionDetection = (function(){
 		}
 	};
 
-	CollisionDetection.checkSuitcaseCollision = function(shapeA, shapeB){
+	CollisionDetection.checkCollisionSimple = function(shapeA, shapeB){
 		var vX = (shapeA.x + (shapeA.width/2)) - (shapeB.x + (shapeB.width/2));
 		var vY = (shapeA.y + (shapeA.height/2)) - (shapeB.y + (shapeB.height/2));
 		var hWidths = (shapeA.width/2) + (shapeB.width/2);
@@ -57,6 +57,8 @@ var CollisionDetection = (function(){
 
 		if(Math.abs(vX) < hWidths && Math.abs(vY) < hHeights){
 			return true;
+		}else{
+			return false;
 		}
 	};
 

@@ -7,6 +7,7 @@ var App = (function(){
 	var ticker;
 	var world;
 	var deathzones;
+	var checkpoints;
 	var cameras, cameraVisibilities;
 	var aantalSwitches;
 	var endPoint;
@@ -14,8 +15,12 @@ var App = (function(){
 	var tileset;
 	var map;
 
+	var spawnX;
+	var spawnY;
+	var onCheckpoint;
+
 	var currentLevel;
-	var square;
+	var currentCheckpoint;
 
 
 	function App(level){
@@ -25,12 +30,17 @@ var App = (function(){
 		keys = [];
 		deathzones = [];
 		cameras = [];
+		checkpoints = [];
 		cameras[0] = [];
 		cameras[1] = [];
 		cameras[2] = [];
 		aantalSwitches = 0;
 		cameraVisibilities = [];
 		currentLevel = level;
+		currentCheckpoint = -1;
+		spawnX = 0;
+		spawnY = 0;
+		onCheckpoint = false;
 
 		stage = new createjs.Stage('cnvs');
 		world = new World(1200, 800);
@@ -55,7 +65,9 @@ var App = (function(){
 
 	function mapLoadedHandler(){
 		world.addChild(map.displayobject);
-		player = new Player(50, 600);
+		spawnX = map.spawnX;
+		spawnY = map.spawnY;
+		player = new Player(spawnX, spawnY);
 		player.gravity = world.gravity;
 		player.friction = world.friction;
 		world.addChild(player.displayobject);
@@ -65,7 +77,7 @@ var App = (function(){
 		platforms = map.platformtiles;
 		deathzones = map.deathzones;
 		movingboxes = map.movingtiles;
-
+		checkpoints = map.checkpoints;
 		//camera logica
 		cameras[0] = map.collisiontiles.concat(map.worldtiles, map.deathzones, map.platformtiles);
 		console.log(cameras[0]);
@@ -117,24 +129,24 @@ var App = (function(){
 
 			case "l":
 				player.velX = 0;
-				player.x = 50;
-				player.y = 600;
+				player.x = spawnX;
+				player.y = spawnY;
 			break;
 			case "r":
 				player.velX = 0;
-				player.x = 50;
-				player.y = 600;
+				player.x = spawnX;
+				player.y = spawnY;
 			break;
 			case "t":
 				player.velY *= -1;
-				player.x = 50;
-				player.y = 600;
+				player.x = spawnX;
+				player.y = spawnY;
 			break;
 			case "b":
 				player.grounded = true;
 				player.jumping = false;
-				player.x = 50;
-				player.y = 600;
+				player.x = spawnX;
+				player.y = spawnY;
 			break;
 			}
 		}
@@ -170,8 +182,21 @@ var App = (function(){
 			}
 		}
 
-		if(CollisionDetection.checkSuitcaseCollision(player, endPoint)){
+		if(CollisionDetection.checkCollisionSimple(player, endPoint)){
 			console.log('GOTTA CATCH EM ALL');
+		}
+
+		
+
+		if(keys[32]){
+			for (var b = 0; b < checkpoints.length; b++){
+			if(CollisionDetection.checkCollisionSimple(player, checkpoints[b])){
+				currentCheckpoint = checkpoints[b];
+				spawnX = currentCheckpoint.x;
+				spawnY = currentCheckpoint.y;
+				checkpoints[checkpoints.indexOf(currentCheckpoint)].update();
+			}
+		}
 		}
 
 		if(keys[37]){

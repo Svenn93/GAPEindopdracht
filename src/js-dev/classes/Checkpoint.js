@@ -1,7 +1,7 @@
 /*globals createjs:true*/
-var Tile = (function(){
+var Checkpoint = (function(){
 
-	function Tile(sprite, tilewidth, tileheight){
+	function Checkpoint(sprite, tilewidth, tileheight){
 		this.sprite = sprite;
 		this.width = tilewidth;
 		this.height = tileheight;
@@ -13,9 +13,17 @@ var Tile = (function(){
 		this.displayobject.height = this.height;
 		this.sprite.x = 0;
 		this.sprite.y = 0;
+		this.saved = false;
 		this.displayobject.addChild(this.sprite);
 	}
 
-	return Tile;
+	Checkpoint.prototype.update = function() {
+		if(!this.saved){
+			this.sprite.gotoAndStop(this.sprite.currentFrame - 2);
+			this.saved = true;
+		}
+	};
+
+	return Checkpoint;
 
 })();
