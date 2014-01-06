@@ -976,7 +976,7 @@ var World =(function(){
 		$("h1").click(function(){
 			if($(this).html() === menuItems[0])
 			{
-					startGame(1);
+					startGame(2);
 			}
 		});
 

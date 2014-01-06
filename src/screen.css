@@ -216,12 +216,16 @@ h1{
 .show
 {
 	cursor: pointer;
+	background-repeat: no-repeat;
+	background-position:center;
 }
 
 .show:nth-child(1){
 	background-image: url("images/level1.png");
-	background-repeat: no-repeat;
-	background-position:center;
+}
+
+.show:nth-child(2){
+	background-image: url("images/level2.png");
 }
 
 
