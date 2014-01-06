@@ -100,6 +100,7 @@
 			{
 					//logica voor het ophalen van de local storage
 					startGame(2);
+
 			}
 		});
 
@@ -119,6 +120,17 @@
 		$("#menu").remove();
 		var app = new App(level);
 		$("canvas").show();
+		changeAudio("level" + level);
+	}
+
+	function changeAudio(track)
+	{
+		var myAudio=$("#audio");
+        var audioSub = myAudio.get(0);
+        var playmode=audioSub.paused;
+		myAudio.attr('src','audio/'+ track + '.ogg');
+        playmode = true;
+        audioSub.play();
 	}
 
 	init();
