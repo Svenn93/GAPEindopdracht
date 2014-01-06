@@ -1028,7 +1028,7 @@ var World =(function(){
 		$("h1").click(function(){
 			if($(this).html() === menuItems[0])
 			{
-					startGame(2);
+				startGame(1);
 			}
 		});
 
@@ -1048,6 +1048,18 @@ var World =(function(){
 		$("#menu").remove();
 		var app = new App(level);
 		$("canvas").show();
+		changeAudio("level" + level);
+	}
+
+	function changeAudio(track)
+	{
+		var source = '<audio>';
+		source +=  '<source id="audio_player_ogv" src=audio/"' + track + '.ogv"  type="audio/ogg" />';
+		source +=  '<source id="audio_player_ogv" src=audio/"' + track + '.mp3"  type="audio/mpeg" />';
+		source +=  '</audio>';
+		$('audio').html(source);
+		var aud = $('audio').get(0);
+		aud.play();
 	}
 
 	init();
