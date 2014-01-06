@@ -1053,7 +1053,7 @@ var World =(function(){
 		$("#menu").remove();
 		var app = new App(level);
 		$("canvas").show();
-		changeAudio("level" + level);
+		//changeAudio("level" + level);
 	}
 
 	function changeAudio(track)
