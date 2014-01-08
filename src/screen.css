@@ -42,7 +42,7 @@ body {
 	font-size: 1.8em;
 	line-height: 1;
 	color: white;
-	background-image: url("images/bg.jpg");
+	background-image: url("images/bgMenu.jpg");
 	overflow: hidden;
 
 	-webkit-touch-callout: none;
@@ -85,6 +85,7 @@ canvas
 
 
 h1{
+	z-index: 100;
 	text-align: center;
 	margin-left: auto;
 	margin-right: auto;
@@ -106,6 +107,8 @@ h1{
 }
 
 #buttons{
+	z-index: 99
+	opacity: 0.9;
 	margin-top: -110px;
 	margin-bottom: 110px;
 	width: 800px;
@@ -135,22 +138,18 @@ h1{
 	-webkit-text-stroke-width: 10px;
 }
 
-#logo{
-	display: block;
-	width: 321px;
-	margin-left: auto;
-	margin-right: auto;
-}
 
 #guy{
+	cursor: pointer;
 	position: fixed;
 	bottom: 0;
 	left: 10%;
 }
 
-#stripes{
+#logo{
+	z-index: -1;
 	position: absolute;
-	top: 0;
+	left: 0;
 	bottom: 0;
 	display: block;
 	width: 100%;
@@ -160,10 +159,34 @@ h1{
 
 }
 
+#logo2{
+	z-index: -2;
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	display: block;
+	width: 200%;
+  	height: 100%;
+	background-image: url("images/bg4.png");
+	pointer-events: none;
+
+}
+
+
+#stripes{
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	display: block;
+	width: 100%;
+  	height: 100%;
+	background-image: url("images/bg3.png");
+	pointer-events: none;
+
+}
+
 .buttons
 {
-	opacity: 0.9;
-	/*margin-top: 100px;*/
 	width: 950px;
 	margin-left: auto;
 	margin-right: auto;
@@ -273,6 +296,46 @@ h1{
 	cursor: pointer;
 background-color: rgba(255,255,255,0.8);
 
+}
+
+#inGameMenu
+{
+	font-size: 2em;
+	padding: 2%;
+	position: fixed;
+	margin-left: auto;
+	width: 40%;
+	left:28%;
+	top: 30%;
+	margin-right: auto;
+	display: block;
+	text-align: center;
+	background-color: rgba(255,255,255,0.9);
+	color: #fff;
+
+	box-shadow:
+    -8px -8px 0 #000,
+    8px -8px 0 #000,
+    -8px 8px 0 #000,
+    8px 8px 0 #000;  
+
+  	-webkit-text-stroke-width: 4px;
+    -webkit-text-stroke-color: black;
+
+}
+
+#inGameMenu li:nth-child(1){
+	margin-bottom: 20px;
+}
+
+#inGameMenu li{
+		list-style-type: none;
+}
+
+#inGameMenu li:hover{
+	cursor: pointer;
+	-webkit-text-stroke-width: 5px;
+    -webkit-text-stroke-color: black;
 }
 
 

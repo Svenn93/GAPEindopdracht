@@ -7,7 +7,6 @@
 	<link href="images/favicon.ico" rel="icon" type="image/x-icon" />
 </head>
 <body>
-
 <div id="menu">
 
 	<h1 class="hover">PLAY</h1>
@@ -40,21 +39,31 @@
 
 	<img id="guy" src="images/guyDrink.png" />
 </div>
-	<!--
+
+<div id="inGameMenu">
+	<ul>
+		<li>Main menu</li>
+		<li>Restart</li>
+	</ul>
+</div>
+
+	
 	<audio id="audio" loop="loop" autoplay="autoplay">
   		<source src="audio/office.ogg" type="audio/ogg">
   		<source src="audio/office.mp3" type="audio/mpeg">
 		Your browser does not support the audio element.
 	</audio>
-	-->
+
 	<div id="stripes">&nbsp;</div>
+	<div id="logo">&nbsp;</div>
+	<div id="logo2">&nbsp;</div>
 
 	<div id="scores">
 		<ul>
-			<li>Menu</li>
-			<li>Time: <span>0</span></li>
-			<li>Camera Switches: <span>0</span></li>
-			<li>Checkpoints used: <span>0</span></li>
+			<li id="inGameMenuButton">Menu</li>
+			<li>Time: <span id="seconden">0</span></li>
+			<li>Camera Switches: <span id="aantal">0</span></li>
+			<li>Checkpoints used: <span id="checkpoints">0</span></li>
 		<ul>
 	</div>
 	

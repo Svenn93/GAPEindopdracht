@@ -2,7 +2,7 @@
 
 (function()
 {
-	var menuItems = ["PLAY","LEVELS","CONTROLS"];
+	var menuItems = ["PLAY","LEVELS","CONTROLS","SCORES"];
 	var timer = 0;
 
 	function init()
@@ -12,6 +12,9 @@
 		$("#controls").hide();
 		$("canvas").hide();
 		$("#scores").hide();
+		$("#logo").hide();
+		$("#logo2").hide();
+		$("#inGameMenu").hide();
 
 		setInterval(function(){
 			animation();
@@ -41,11 +44,10 @@
 			{
 				case menuItems[0]:
 
-					$("h1").html(menuItems[2]);
+					$("h1").html(menuItems[3]);
 					$("h1").removeClass("hover");
-					$("#buttons").css("width","1200");
+					$("#buttons").css("width","1000");
 					$("#menu").css("margin-top","10%");
-					$("#controls").fadeIn();
 				break;
 
 				case menuItems[1]:
@@ -61,6 +63,13 @@
 					$("h1").html(menuItems[1]);
 					$("#buttons").css("width","1000");
 					$("#levels").fadeIn();
+					$("#menu").css("margin-top","10%");
+				break;
+
+				case menuItems[3]:
+					$("h1").html(menuItems[2]);
+					$("#buttons").css("width","1200");
+					$("#controls").fadeIn();
 					$("#menu").css("margin-top","10%");
 				break;
 			}
@@ -88,6 +97,13 @@
 
 				case menuItems[2]:
 					$("#controls").fadeOut();
+					$("h1").html(menuItems[3]);
+					$("#buttons").css("width","1000");
+					$("#menu").css("margin-top","20%");
+				break;
+
+				case menuItems[3]:
+
 					$("h1").html(menuItems[0]);
 					$("#buttons").css("width","800");
 					$("h1").addClass("hover");
@@ -120,9 +136,13 @@
 	{
 		$("#menu").remove();
 		var app = new App(level);
+		$("body").css("background-image","url('images/bg.jpg')");
+		$("#logo").show();
+		$("#logo2").show();
 		$("canvas").show();
 		$("#scores").slideDown();
 		changeAudio("level" + level);
+
 	}
 
 	function changeAudio(track)

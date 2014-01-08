@@ -12,7 +12,12 @@ var App = (function(){
 	var checkpoints;
 	var cameras, cameraVisibilities;
 	var aantalSwitches;
+	var aantalCheckpoints;
+	var aantalSeconden;
+	var counterSeconden;
 	var endPoint;
+
+	var backgroundPos;
 
 	var tileset;
 	var map;
@@ -23,6 +28,8 @@ var App = (function(){
 
 	var currentLevel;
 	var currentCheckpoint;
+
+	var paused;
 
 
 	function App(level){
@@ -37,6 +44,11 @@ var App = (function(){
 		cameras[1] = [];
 		cameras[2] = [];
 		aantalSwitches = 0;
+		aantalCheckpoints = 0;
+		aantalSeconden = 0;
+		counterSeconden = 0;
+		backgroundPos = 0;
+		paused = false;
 		cameraVisibilities = [];
 		currentLevel = level;
 		currentCheckpoint = -1;
@@ -61,6 +73,7 @@ var App = (function(){
 
 		window.onkeydown = keydown;
 		window.onkeyup = keyup;
+		$('#inGameMenuButton').click(function(){menuHandler();});
 
 		stage.addChild(world.container);
 	}
@@ -94,6 +107,15 @@ var App = (function(){
 	}
 
 	function update() {
+
+		if(counterSeconden < 60){
+			counterSeconden ++;
+		}
+		else if(counterSeconden === 60){
+			aantalSeconden ++;
+			counterSeconden = 0;
+			document.getElementById("seconden").innerHTML = aantalSeconden;
+		}
 
 		player.grounded = false;
 
@@ -194,6 +216,13 @@ var App = (function(){
 			for (var b = 0; b < checkpoints.length; b++){
 			if(CollisionDetection.checkCollisionSimple(player, checkpoints[b])){
 				currentCheckpoint = checkpoints[b];
+
+				if(spawnX !== currentCheckpoint.x)
+				{
+					aantalCheckpoints ++;
+					document.getElementById("checkpoints").innerHTML = aantalCheckpoints;
+				}
+
 				spawnX = currentCheckpoint.x;
 				spawnY = currentCheckpoint.y;
 				checkpoints[checkpoints.indexOf(currentCheckpoint)].update();
@@ -208,6 +237,11 @@ var App = (function(){
 					player.velX -= 2;
 				}else{
 					player.velX --;
+					backgroundPos ++;
+					$("#logo").css("left",backgroundPos);
+					$("#logo2").css("left",backgroundPos*2);
+
+
 				}
 			}
 		}
@@ -229,6 +263,9 @@ var App = (function(){
 					player.velX += 2;
 				}else{
 					player.velX ++;
+					backgroundPos --;
+					$("#logo").css("left",backgroundPos);
+					$("#logo2").css("left",backgroundPos*2);
 				}
 			}
 		}
@@ -245,14 +282,14 @@ var App = (function(){
 			updateCameras(1, true);
 			updateCameras(0, false);
 			aantalSwitches++;
-		//document.getElementById("aantal").innerHTML = aantalSwitches;
+			document.getElementById("aantal").innerHTML = aantalSwitches;
 		}
 
 		if(event.keyCode === 65){
 			updateCameras(1, false);
 			updateCameras(0, true);
 			aantalSwitches++;
-		//document.getElementById("aantal").innerHTML = aantalSwitches;
+			document.getElementById("aantal").innerHTML = aantalSwitches;
 		}
 	}
 
@@ -286,6 +323,24 @@ var App = (function(){
 			cameras[cameraNumber][i].displayobject.visible = visibility;
 			cameraVisibilities[cameraNumber] = visibility;
 		}
+	}
+
+	function menuHandler(){
+
+		$("#inGameMenu").slideToggle();
+
+		if(paused === false)
+		{
+			ticker.removeEventListener("tick", update);
+			paused = true;
+		}
+		else if(paused === true)
+		{
+			ticker.addEventListener("tick", update);
+			paused = false;
+		}
+
+
 	}
 
 	return App;
@@ -994,7 +1049,7 @@ var World =(function(){
 
 (function()
 {
-	var menuItems = ["PLAY","LEVELS","CONTROLS"];
+	var menuItems = ["PLAY","LEVELS","CONTROLS","SCORES"];
 	var timer = 0;
 
 	function init()
@@ -1004,6 +1059,9 @@ var World =(function(){
 		$("#controls").hide();
 		$("canvas").hide();
 		$("#scores").hide();
+		$("#logo").hide();
+		$("#logo2").hide();
+		$("#inGameMenu").hide();
 
 		setInterval(function(){
 			animation();
@@ -1033,11 +1091,10 @@ var World =(function(){
 			{
 				case menuItems[0]:
 
-					$("h1").html(menuItems[2]);
+					$("h1").html(menuItems[3]);
 					$("h1").removeClass("hover");
-					$("#buttons").css("width","1200");
+					$("#buttons").css("width","1000");
 					$("#menu").css("margin-top","10%");
-					$("#controls").fadeIn();
 				break;
 
 				case menuItems[1]:
@@ -1053,6 +1110,13 @@ var World =(function(){
 					$("h1").html(menuItems[1]);
 					$("#buttons").css("width","1000");
 					$("#levels").fadeIn();
+					$("#menu").css("margin-top","10%");
+				break;
+
+				case menuItems[3]:
+					$("h1").html(menuItems[2]);
+					$("#buttons").css("width","1200");
+					$("#controls").fadeIn();
 					$("#menu").css("margin-top","10%");
 				break;
 			}
@@ -1080,6 +1144,13 @@ var World =(function(){
 
 				case menuItems[2]:
 					$("#controls").fadeOut();
+					$("h1").html(menuItems[3]);
+					$("#buttons").css("width","1000");
+					$("#menu").css("margin-top","20%");
+				break;
+
+				case menuItems[3]:
+
 					$("h1").html(menuItems[0]);
 					$("#buttons").css("width","800");
 					$("h1").addClass("hover");
@@ -1112,9 +1183,13 @@ var World =(function(){
 	{
 		$("#menu").remove();
 		var app = new App(level);
+		$("body").css("background-image","url('images/bg.jpg')");
+		$("#logo").show();
+		$("#logo2").show();
 		$("canvas").show();
 		$("#scores").slideDown();
 		changeAudio("level" + level);
+
 	}
 
 	function changeAudio(track)
