@@ -1003,6 +1003,7 @@ var World =(function(){
 		$("#levels").hide();
 		$("#controls").hide();
 		$("canvas").hide();
+		$("#scores").hide();
 
 		setInterval(function(){
 			animation();
@@ -1112,6 +1113,7 @@ var World =(function(){
 		$("#menu").remove();
 		var app = new App(level);
 		$("canvas").show();
+		$("#scores").slideDown();
 		changeAudio("level" + level);
 	}
 

@@ -11,6 +11,7 @@
 		$("#levels").hide();
 		$("#controls").hide();
 		$("canvas").hide();
+		$("#scores").hide();
 
 		setInterval(function(){
 			animation();
@@ -120,6 +121,7 @@
 		$("#menu").remove();
 		var app = new App(level);
 		$("canvas").show();
+		$("#scores").slideDown();
 		changeAudio("level" + level);
 	}
 

@@ -107,6 +107,7 @@ h1{
 
 #buttons{
 	margin-top: -110px;
+	margin-bottom: 110px;
 	width: 800px;
 	margin-left: auto;
 	margin-right: auto;
@@ -162,7 +163,7 @@ h1{
 .buttons
 {
 	opacity: 0.9;
-	margin-top: 100px;
+	/*margin-top: 100px;*/
 	width: 950px;
 	margin-left: auto;
 	margin-right: auto;
@@ -227,6 +228,55 @@ h1{
 .show:nth-child(2){
 	background-image: url("images/level2.png");
 }
+
+#scores{
+	background-color: rgba(0,0,0,0.5);
+	font-size: 0.5em;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+		text-shadow:
+    -2px -2px 0 #000,
+    2px -2px 0 #000,
+    -2px 2px 0 #000,
+    2px 2px 0 #000;  
+}
+
+
+#scores li{
+	float: right;
+	padding-top: 15px;
+	padding-bottom: 15px;
+	margin-right: 75px;
+	display: inline-block;
+}
+
+#scores li span{
+
+}
+
+#scores li:nth-child(1){
+	cursor: pointer;
+	float: left;
+	padding-left: 20px;
+	padding-right: 20px;
+	background-color: rgba(0,0,0,1);
+	transition: all .2s linear;
+    -webkit-transition: all .2s linear;
+    -moz-transition: all .2s linear;
+    -o-transition: all .2s linear;
+
+}
+
+#scores li:nth-child(1):hover{
+	cursor: pointer;
+background-color: rgba(255,255,255,0.8);
+
+}
+
+
+
 
 
 
