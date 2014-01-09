@@ -55,7 +55,7 @@ var App = (function(){
 		previousDirection = "right";
 
 		cameraVisibilities = [];
-		currentLevel = level;
+		currentLevel = 5;
 		currentCheckpoint = -1;
 		spawnX = 0;
 		spawnY = 0;
@@ -69,12 +69,8 @@ var App = (function(){
 		world.boundH = -(world.height-height);
 		world.boundW = -(world.width-width);
 
-		buildBounds();
-		
 		map = new TileMap(currentLevel);
 		bean.on(map, 'mapLoaded', mapLoadedHandler);
-
-		//ticker, voor stage refresh.
 
 		window.onkeydown = keydown;
 		window.onkeyup = keyup;
@@ -84,14 +80,30 @@ var App = (function(){
 	}
 
 	function mapLoadedHandler(){
+		boxes.length = 0;
+		platforms.length = 0;
+		deathzones.length = 0;
+		movingboxes.length = 0;
+		checkpoints.length = 0;
+		cameras[0].length = 0;
+		cameras[1].length = 0;
+		console.log('MAP IS GELADEN');
+
 		laatsteKeyCode = 65; //normal camera mode
+		buildBounds();
 		world.addChild(map.displayobject);
 		spawnX = map.spawnX;
 		spawnY = map.spawnY;
-		player = new Player(spawnX, spawnY);
-		player.gravity = world.gravity;
-		player.friction = world.friction;
-		world.addChild(player.displayobject);
+		console.log(player);
+
+		if(typeof player === "undefined"){
+			player = new Player(spawnX, spawnY);
+			player.gravity = world.gravity;
+			player.friction = world.friction;
+			world.addChild(player.displayobject);
+		}
+		player.x = spawnX;
+		player.y = spawnY;
 
 		//collision logica
 		boxes = boxes.concat(map.collisiontiles);
@@ -101,15 +113,15 @@ var App = (function(){
 		checkpoints = map.checkpoints;
 		//camera logica
 		cameras[0] = map.collisiontiles.concat(map.worldtiles, map.deathzones, map.platformtiles);
-		console.log(cameras[0]);
 		cameras[1] = map.movingtiles;
-		initCameras();
+		//initCameras();
 
 		endPoint = map.endPoint;
 
 		ticker = createjs.Ticker;
 		ticker.setFPS('60');
 		ticker.addEventListener('tick', update);
+
 	}
 
 	function update() {
@@ -150,27 +162,24 @@ var App = (function(){
 			case "b":
 				player.grounded = true;
 				player.jumping = false;
-			break;
+				break;
 			}
 		}
 
 		for (var k = 0; k < deathzones.length; k++) {
-			switch(CollisionDetection.checkCollision(player, deathzones[k], "deathzone")){
+			switch(CollisionDetection.checkCollision(player, deathzones[k], "box")){
 
 			case "l":
 				player.velX = 0;
-				player.x = spawnX;
-				player.y = spawnY;
+				
 			break;
 			case "r":
 				player.velX = 0;
-				player.x = spawnX;
-				player.y = spawnY;
+				
 			break;
 			case "t":
 				player.velY *= -1;
-				player.x = spawnX;
-				player.y = spawnY;
+
 			break;
 			case "b":
 				player.grounded = true;
@@ -213,7 +222,14 @@ var App = (function(){
 		}
 
 		if(CollisionDetection.checkCollisionSimple(player, endPoint)){
+			ticker.removeEventListener('tick', update);
+			world.container.removeChild(map.displayobject);
+			currentLevel ++;
+			console.log('EINDE SPEL:', boxes, platforms, deathzones, movingboxes, checkpoints);
 			console.log('GOTTA CATCH EM ALL');
+			map = new TileMap(currentLevel);
+			bean.on(map, 'mapLoaded', mapLoadedHandler);
+
 		}
 
 		
@@ -410,10 +426,6 @@ var App = (function(){
 			ticker.addEventListener("tick", update);
 			paused = false;
 		}
-
-
-
-
 	}
 
 	return App;

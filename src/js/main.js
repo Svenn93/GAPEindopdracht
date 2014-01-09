@@ -57,7 +57,7 @@ var App = (function(){
 		previousDirection = "right";
 
 		cameraVisibilities = [];
-		currentLevel = level;
+		currentLevel = 5;
 		currentCheckpoint = -1;
 		spawnX = 0;
 		spawnY = 0;
@@ -71,12 +71,8 @@ var App = (function(){
 		world.boundH = -(world.height-height);
 		world.boundW = -(world.width-width);
 
-		buildBounds();
-		
 		map = new TileMap(currentLevel);
 		bean.on(map, 'mapLoaded', mapLoadedHandler);
-
-		//ticker, voor stage refresh.
 
 		window.onkeydown = keydown;
 		window.onkeyup = keyup;
@@ -86,14 +82,30 @@ var App = (function(){
 	}
 
 	function mapLoadedHandler(){
+		boxes.length = 0;
+		platforms.length = 0;
+		deathzones.length = 0;
+		movingboxes.length = 0;
+		checkpoints.length = 0;
+		cameras[0].length = 0;
+		cameras[1].length = 0;
+		console.log('MAP IS GELADEN');
+
 		laatsteKeyCode = 65; //normal camera mode
+		buildBounds();
 		world.addChild(map.displayobject);
 		spawnX = map.spawnX;
 		spawnY = map.spawnY;
-		player = new Player(spawnX, spawnY);
-		player.gravity = world.gravity;
-		player.friction = world.friction;
-		world.addChild(player.displayobject);
+		console.log(player);
+
+		if(typeof player === "undefined"){
+			player = new Player(spawnX, spawnY);
+			player.gravity = world.gravity;
+			player.friction = world.friction;
+			world.addChild(player.displayobject);
+		}
+		player.x = spawnX;
+		player.y = spawnY;
 
 		//collision logica
 		boxes = boxes.concat(map.collisiontiles);
@@ -103,15 +115,15 @@ var App = (function(){
 		checkpoints = map.checkpoints;
 		//camera logica
 		cameras[0] = map.collisiontiles.concat(map.worldtiles, map.deathzones, map.platformtiles);
-		console.log(cameras[0]);
 		cameras[1] = map.movingtiles;
-		initCameras();
+		//initCameras();
 
 		endPoint = map.endPoint;
 
 		ticker = createjs.Ticker;
 		ticker.setFPS('60');
 		ticker.addEventListener('tick', update);
+
 	}
 
 	function update() {
@@ -152,27 +164,24 @@ var App = (function(){
 			case "b":
 				player.grounded = true;
 				player.jumping = false;
-			break;
+				break;
 			}
 		}
 
 		for (var k = 0; k < deathzones.length; k++) {
-			switch(CollisionDetection.checkCollision(player, deathzones[k], "deathzone")){
+			switch(CollisionDetection.checkCollision(player, deathzones[k], "box")){
 
 			case "l":
 				player.velX = 0;
-				player.x = spawnX;
-				player.y = spawnY;
+				
 			break;
 			case "r":
 				player.velX = 0;
-				player.x = spawnX;
-				player.y = spawnY;
+				
 			break;
 			case "t":
 				player.velY *= -1;
-				player.x = spawnX;
-				player.y = spawnY;
+
 			break;
 			case "b":
 				player.grounded = true;
@@ -215,7 +224,14 @@ var App = (function(){
 		}
 
 		if(CollisionDetection.checkCollisionSimple(player, endPoint)){
+			ticker.removeEventListener('tick', update);
+			world.container.removeChild(map.displayobject);
+			currentLevel ++;
+			console.log('EINDE SPEL:', boxes, platforms, deathzones, movingboxes, checkpoints);
 			console.log('GOTTA CATCH EM ALL');
+			map = new TileMap(currentLevel);
+			bean.on(map, 'mapLoaded', mapLoadedHandler);
+
 		}
 
 		
@@ -412,10 +428,6 @@ var App = (function(){
 			ticker.addEventListener("tick", update);
 			paused = false;
 		}
-
-
-
-
 	}
 
 	return App;
@@ -930,38 +942,38 @@ var TileMap = (function(){
 		this.movingtiles = [];
 		this.checkpoints = [];
 		this.displayobject = new createjs.Container();
-		this.endPoint = "";
-		this.spawnX = "";
-		this.spawnY = "";
-		this.draw();
+		this.tileset = new Image();
+		this.tileset.src = "maps/tilemap.png";
+		this.tileset.onLoad = this.draw();
 	}
 
 	Map.prototype.draw = function() {
-		var self = this;
-		var jsonURL = 'maps/level' + self.currentLevel + '/level.json';
+		/** NIEUWE CONTAINER, ALLES WORDT VERWIJDERD **/
+		if(this.displayobject.children !== 0){
+			this.displayobject.removeAllChildren();
+		}
+
+		/** JSON URL INSTELLEN**/
+		var jsonURL = 'maps/level' + this.currentLevel + '/level.json';
+
 		/** JSON VAN HET JUISTE LEVEL INLADEN **/
 		$.ajax({
 			context:this,
 			url:jsonURL,
-			success:self.jsonLoaded}
+			success:this.jsonLoaded}
 		);
+
 		console.log('json inladen');
 	};
 
 	Map.prototype.jsonLoaded = function( data ){
 		console.log('json loaded');
-		var self = this;
 		this.mapData = data;
-		this.tileset = new Image();
-		this.tileset.src = this.mapData.tilesets[0].image;
-		console.log('json ingeladen', this.mapData.tilesets[0]);
-		this.tileset.onLoad = self.initLayers();
+		this.initLayers();
 	};
 
 	Map.prototype.initLayers = function(){
 		/** DE JUISTE LAYER UIT HET JSONBESTAND OPHALEN **/
-		var self = this;
-		console.log(this);
 		var w = this.mapData.tilesets[0].tilewidth;
 		var h = this.mapData.tilesets[0].tileheight;
 		var imageData = {
@@ -985,13 +997,12 @@ var TileMap = (function(){
 
 		this.spawnX = this.mapData.spawnpoint[0];
 		this.spawnY = this.mapData.spawnpoint[1];
-
-		bean.fire(self, 'mapLoaded');
+		console.log("movingtiles in tilemap: ", this.movingtiles);
+		bean.fire(this, 'mapLoaded');
 	};
 
 
 	Map.prototype.initLayer = function(layerData, tilesetSheet, tilewidth, tileheight) {
-		var self=this;
 		var platformteller= 0;
 		var targetX = "";
 		var targetY = "";
@@ -1029,6 +1040,14 @@ var TileMap = (function(){
 							this.worldtiles.push(worldTile);
 						break;
 
+						case "Traps":
+
+							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
+							console.log("worldtile added");
+							this.displayobject.addChild(worldTile.displayobject);
+							this.worldtiles.push(worldTile);
+						break;
+
 						case "Suitcase":
 							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
 							console.log("platform  added");
@@ -1038,7 +1057,6 @@ var TileMap = (function(){
 						break;
 
 						case "Collision":
-
 							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
 							console.log("collision worldtile added");
 							this.displayobject.addChild(worldTile.displayobject);
@@ -1078,6 +1096,7 @@ var TileMap = (function(){
 				}
 			}
 		}
+
 	};
 
 	return Map;

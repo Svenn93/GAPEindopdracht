@@ -11,38 +11,38 @@ var TileMap = (function(){
 		this.movingtiles = [];
 		this.checkpoints = [];
 		this.displayobject = new createjs.Container();
-		this.endPoint = "";
-		this.spawnX = "";
-		this.spawnY = "";
-		this.draw();
+		this.tileset = new Image();
+		this.tileset.src = "maps/tilemap.png";
+		this.tileset.onLoad = this.draw();
 	}
 
 	Map.prototype.draw = function() {
-		var self = this;
-		var jsonURL = 'maps/level' + self.currentLevel + '/level.json';
+		/** NIEUWE CONTAINER, ALLES WORDT VERWIJDERD **/
+		if(this.displayobject.children !== 0){
+			this.displayobject.removeAllChildren();
+		}
+
+		/** JSON URL INSTELLEN**/
+		var jsonURL = 'maps/level' + this.currentLevel + '/level.json';
+
 		/** JSON VAN HET JUISTE LEVEL INLADEN **/
 		$.ajax({
 			context:this,
 			url:jsonURL,
-			success:self.jsonLoaded}
+			success:this.jsonLoaded}
 		);
+
 		console.log('json inladen');
 	};
 
 	Map.prototype.jsonLoaded = function( data ){
 		console.log('json loaded');
-		var self = this;
 		this.mapData = data;
-		this.tileset = new Image();
-		this.tileset.src = this.mapData.tilesets[0].image;
-		console.log('json ingeladen', this.mapData.tilesets[0]);
-		this.tileset.onLoad = self.initLayers();
+		this.initLayers();
 	};
 
 	Map.prototype.initLayers = function(){
 		/** DE JUISTE LAYER UIT HET JSONBESTAND OPHALEN **/
-		var self = this;
-		console.log(this);
 		var w = this.mapData.tilesets[0].tilewidth;
 		var h = this.mapData.tilesets[0].tileheight;
 		var imageData = {
@@ -66,13 +66,12 @@ var TileMap = (function(){
 
 		this.spawnX = this.mapData.spawnpoint[0];
 		this.spawnY = this.mapData.spawnpoint[1];
-
-		bean.fire(self, 'mapLoaded');
+		console.log("movingtiles in tilemap: ", this.movingtiles);
+		bean.fire(this, 'mapLoaded');
 	};
 
 
 	Map.prototype.initLayer = function(layerData, tilesetSheet, tilewidth, tileheight) {
-		var self=this;
 		var platformteller= 0;
 		var targetX = "";
 		var targetY = "";
@@ -110,6 +109,14 @@ var TileMap = (function(){
 							this.worldtiles.push(worldTile);
 						break;
 
+						case "Traps":
+
+							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
+							console.log("worldtile added");
+							this.displayobject.addChild(worldTile.displayobject);
+							this.worldtiles.push(worldTile);
+						break;
+
 						case "Suitcase":
 							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
 							console.log("platform  added");
@@ -119,7 +126,6 @@ var TileMap = (function(){
 						break;
 
 						case "Collision":
-
 							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
 							console.log("collision worldtile added");
 							this.displayobject.addChild(worldTile.displayobject);
@@ -159,6 +165,7 @@ var TileMap = (function(){
 				}
 			}
 		}
+
 	};
 
 	return Map;
