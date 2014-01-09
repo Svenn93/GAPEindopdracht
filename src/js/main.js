@@ -128,8 +128,7 @@ var App = (function(){
 		if(typeof player !== 'undefined'){
 			player.x = spawnX;
 			player.y = spawnY;
-			world.removeChild(player);
-			world.addChild(player);
+			world.container.setChildIndex(player, world.container.getNumChildren()-1);
 			
 		}else{
 			player = new Player(spawnX, spawnY);
@@ -137,7 +136,7 @@ var App = (function(){
 			player.friction = world.friction;
 			world.addChild(player.displayobject);
 		}
-		
+
 		ticker = createjs.Ticker;
 		ticker.setFPS('60');
 		ticker.addEventListener('tick', update);
@@ -474,14 +473,13 @@ var App = (function(){
 
 	function menuHandler(){
 
-		$("#inGameMenu").slideToggle();
+		$("#inGameMenu").slideDown();
 
 		if(paused === false)
 		{
 			paused = true;
 			ticker.removeEventListener("tick", update);
 			$("#inGameMenu ul").on("click", "li", function(){
-				console.log($(this).html());
 
 				switch($(this).html())
 				{
@@ -494,7 +492,7 @@ var App = (function(){
 					break;
 
 					case "Continue":
-						$("#inGameMenu").slideToggle();
+						$("#inGameMenu").slideUp();
 						ticker.addEventListener("tick", update);
 						paused = false;
 					break;
