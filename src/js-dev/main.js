@@ -1,4 +1,4 @@
-/*globals App:true*/
+/*globals App:true, FB:true*/
 
 (function()
 {
@@ -18,9 +18,22 @@
 		$("#endGameMenu").hide();
 		$("#highscore").hide();
 
+		$("#guy").on('click', fbLogin);
+
 		setInterval(function(){
 			animation();
 		},1000);
+	}
+
+	function fbLogin(){
+		FB.login(function(response) {
+    if (response.authResponse) {
+       console.log(response.authResponse);
+    } else {
+        // The person cancelled the login dialog
+        console.log(response);
+    }
+});
 	}
 
 	function animation()

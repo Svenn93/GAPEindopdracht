@@ -122,7 +122,6 @@ var App = (function(){
 
 		endPoint = map.endPoint;
 
-		//player altijd opnieuw aanmaken, easel ondersteund geen childIndex, numchildren. Enkel op stage = niet handig.
 		if(typeof player !== 'undefined'){
 			player.x = spawnX;
 			player.y = spawnY;
@@ -465,7 +464,6 @@ var App = (function(){
 						$("#endGameMenu").slideUp();
 					break;
 				}
-
 			});
 	}
 
@@ -486,7 +484,9 @@ var App = (function(){
 					break;
 
 					case "Restart":
-
+						$("#inGameMenu").slideUp();
+						restartLevel();
+						paused = false;
 					break;
 
 					case "Continue":
