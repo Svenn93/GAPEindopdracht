@@ -126,13 +126,13 @@ var App = (function(){
 		if(typeof player !== 'undefined'){
 			player.x = spawnX;
 			player.y = spawnY;
-			world.container.setChildIndex(player, world.container.getNumChildren()-1);
-			
+			world.container.setChildIndex(player.displayobject, world.container.getNumChildren() - 1);
+
 		}else{
 			player = new Player(spawnX, spawnY);
 			player.gravity = world.gravity;
 			player.friction = world.friction;
-			world.addChild(player.displayobject);
+			world.container.addChild(player.displayobject);
 		}
 
 		ticker = createjs.Ticker;
