@@ -6,6 +6,7 @@
       status     : true,                                 // Check Facebook Login status
       xfbml      : true                                  // Look for social plugins on the page
     });
+    jQuery('#fb-root').trigger('facebook:init');
 
     // Additional initialization code such as adding Event Listeners goes here
   };
