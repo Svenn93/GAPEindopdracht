@@ -30,6 +30,8 @@ var App = (function(){
 	var currentCheckpoint;
 
 	var paused;
+	var animated;
+	var previousDirection;
 
 
 	function App(level){
@@ -47,8 +49,11 @@ var App = (function(){
 		aantalCheckpoints = 0;
 		aantalSeconden = 0;
 		counterSeconden = 0;
-		backgroundPos = 0;
+
 		paused = false;
+		animated = false;
+		previousDirection = "right";
+
 		cameraVisibilities = [];
 		currentLevel = level;
 		currentCheckpoint = -1;
@@ -237,9 +242,25 @@ var App = (function(){
 					player.velX -= 2;
 				}else{
 					player.velX --;
-					backgroundPos ++;
-					$("#logo").css("left",backgroundPos);
-					$("#logo2").css("left",backgroundPos*2);
+					
+					if(previousDirection === "left")
+					{
+						if(animated === false)
+						{
+							$("#logo").animate({left:20});
+							$("#logo2").animate({left:50});
+							animated = true;
+						}
+					}
+					else if(previousDirection === "right")
+					{
+						previousDirection = "left";
+						$("#logo").stop();
+						$("#logo2").stop();
+						$("#logo").animate({left:20});
+						$("#logo2").animate({left:50});
+						animated = true;
+					}
 
 
 				}
@@ -263,9 +284,25 @@ var App = (function(){
 					player.velX += 2;
 				}else{
 					player.velX ++;
-					backgroundPos --;
-					$("#logo").css("left",backgroundPos);
-					$("#logo2").css("left",backgroundPos*2);
+
+					if(previousDirection === "right")
+					{
+						if(animated === false)
+						{
+							$("#logo").animate({left:-20});
+							$("#logo2").animate({left:-50});
+							animated = true;
+						}
+					}
+					else if(previousDirection === "left")
+					{
+						previousDirection = "right";
+						$("#logo").stop();
+						$("#logo2").stop();
+						$("#logo").animate({left:-20});
+						$("#logo2").animate({left:-50});
+						animated = true;
+					}
 				}
 			}
 		}
@@ -332,6 +369,27 @@ var App = (function(){
 		if(paused === false)
 		{
 			ticker.removeEventListener("tick", update);
+			$("#inGameMenu ul").on("click", "li", function(){
+				console.log($(this).html());
+
+				switch($(this).html())
+				{
+					case "Main menu":
+
+					break;
+
+					case "Restart":
+
+					break;
+
+					case "Continue":
+						$("#inGameMenu").slideToggle();
+						ticker.addEventListener("tick", update);
+						paused = false;
+					break;
+				}
+
+			});
 			paused = true;
 		}
 		else if(paused === true)
@@ -339,6 +397,8 @@ var App = (function(){
 			ticker.addEventListener("tick", update);
 			paused = false;
 		}
+
+
 
 
 	}
@@ -1049,7 +1109,7 @@ var World =(function(){
 
 (function()
 {
-	var menuItems = ["PLAY","LEVELS","CONTROLS","SCORES"];
+	var menuItems = ["PLAY","LEVELS","CONTROLS","TOP 5"];
 	var timer = 0;
 
 	function init()
@@ -1062,6 +1122,7 @@ var World =(function(){
 		$("#logo").hide();
 		$("#logo2").hide();
 		$("#inGameMenu").hide();
+		$("#highscore").hide();
 
 		setInterval(function(){
 			animation();
@@ -1094,19 +1155,20 @@ var World =(function(){
 					$("h1").html(menuItems[3]);
 					$("h1").removeClass("hover");
 					$("#buttons").css("width","1000");
-					$("#menu").css("margin-top","10%");
+					$("#menu").css("margin-top","5%");
+					$("#highscore").fadeIn();
 				break;
 
 				case menuItems[1]:
 					$("h1").html(menuItems[0]);
 					$("h1").addClass("hover");
 					$("#buttons").css("width","800");
-					$("#levels").fadeOut();
+					$("#levels").hide();
 					$("#menu").css("margin-top","20%");
 				break;
 
 				case menuItems[2]:
-					$(".buttons").slideToggle();
+					$("#controls").hide();
 					$("h1").html(menuItems[1]);
 					$("#buttons").css("width","1000");
 					$("#levels").fadeIn();
@@ -1118,6 +1180,7 @@ var World =(function(){
 					$("#buttons").css("width","1200");
 					$("#controls").fadeIn();
 					$("#menu").css("margin-top","10%");
+					$("#highscore").hide();
 				break;
 			}
 		});
@@ -1135,18 +1198,18 @@ var World =(function(){
 				break;
 
 				case menuItems[1]:
-					$(".buttons").slideToggle();
 					$("#controls").fadeIn();
 					$("h1").html(menuItems[2]);
 					$("#buttons").css("width","1200");
-					$("#levels").fadeOut();
+					$("#levels").hide();
 				break;
 
 				case menuItems[2]:
-					$("#controls").fadeOut();
+					$("#controls").hide();
 					$("h1").html(menuItems[3]);
 					$("#buttons").css("width","1000");
-					$("#menu").css("margin-top","20%");
+					$("#menu").css("margin-top","5%");
+					$("#highscore").fadeIn();
 				break;
 
 				case menuItems[3]:
@@ -1155,6 +1218,7 @@ var World =(function(){
 					$("#buttons").css("width","800");
 					$("h1").addClass("hover");
 					$("#menu").css("margin-top","20%");
+					$("#highscore").hide();
 				break;
 			}
 		});

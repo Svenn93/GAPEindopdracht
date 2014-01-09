@@ -2,7 +2,7 @@
 
 (function()
 {
-	var menuItems = ["PLAY","LEVELS","CONTROLS","SCORES"];
+	var menuItems = ["PLAY","LEVELS","CONTROLS","TOP 5"];
 	var timer = 0;
 
 	function init()
@@ -15,6 +15,7 @@
 		$("#logo").hide();
 		$("#logo2").hide();
 		$("#inGameMenu").hide();
+		$("#highscore").hide();
 
 		setInterval(function(){
 			animation();
@@ -47,19 +48,20 @@
 					$("h1").html(menuItems[3]);
 					$("h1").removeClass("hover");
 					$("#buttons").css("width","1000");
-					$("#menu").css("margin-top","10%");
+					$("#menu").css("margin-top","5%");
+					$("#highscore").fadeIn();
 				break;
 
 				case menuItems[1]:
 					$("h1").html(menuItems[0]);
 					$("h1").addClass("hover");
 					$("#buttons").css("width","800");
-					$("#levels").fadeOut();
+					$("#levels").hide();
 					$("#menu").css("margin-top","20%");
 				break;
 
 				case menuItems[2]:
-					$(".buttons").slideToggle();
+					$("#controls").hide();
 					$("h1").html(menuItems[1]);
 					$("#buttons").css("width","1000");
 					$("#levels").fadeIn();
@@ -71,6 +73,7 @@
 					$("#buttons").css("width","1200");
 					$("#controls").fadeIn();
 					$("#menu").css("margin-top","10%");
+					$("#highscore").hide();
 				break;
 			}
 		});
@@ -88,18 +91,18 @@
 				break;
 
 				case menuItems[1]:
-					$(".buttons").slideToggle();
 					$("#controls").fadeIn();
 					$("h1").html(menuItems[2]);
 					$("#buttons").css("width","1200");
-					$("#levels").fadeOut();
+					$("#levels").hide();
 				break;
 
 				case menuItems[2]:
-					$("#controls").fadeOut();
+					$("#controls").hide();
 					$("h1").html(menuItems[3]);
 					$("#buttons").css("width","1000");
-					$("#menu").css("margin-top","20%");
+					$("#menu").css("margin-top","5%");
+					$("#highscore").fadeIn();
 				break;
 
 				case menuItems[3]:
@@ -108,6 +111,7 @@
 					$("#buttons").css("width","800");
 					$("h1").addClass("hover");
 					$("#menu").css("margin-top","20%");
+					$("#highscore").hide();
 				break;
 			}
 		});

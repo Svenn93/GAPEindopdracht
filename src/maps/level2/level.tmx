@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="24" height="16" tilewidth="50" tileheight="50">
+ <tileset firstgid="1" name="TileSet" tilewidth="50" tileheight="50">
+  <image source="maps/tilemap.png" width="500" height="500"/>
+ </tileset>
+ <layer name="World" width="24" height="16">
+  <data encoding="base64" compression="zlib">
+   eJzdU+0KgCAM7IN6l0qlh6je/5FqsMEhuo3yVwfHJurtlqvr/ouJ48zxfBgexoa6O6wJq+M++Vg4lpDrzpVzuab0Rvmm6Gv+a1hZ0/P93vjHGhbe+LewQN5SV0C9XQ31EORX3iVyHrhmYsr+l560d/TqWuekxg4s3SnNlteDNY+WDs1KctbSUJqJEdjzfu0/1nCA/gBEfVrfncMKog==
+  </data>
+ </layer>
+ <layer name="Collision" width="24" height="16">
+  <data encoding="base64" compression="zlib">
+   eJxjYBh4YIfEtkdi21LRDhc0vh4etRZQd1iSaZc2Gh/ZH/YMlANNKpgxlAAoPkBphNz4QAZaWMRcobQbFczHBpDTnh0ONbZQOWqkD1oCUNoDhaE2GnuwAGLzLiG34zIHvdwgN85cCSuhCwAAHV8JFw==
+  </data>
+ </layer>
+ <layer name="Deadzone" width="24" height="16">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgcwAGInbGwhwtwYBh+fhoF5AEHIHaEYieG0XQx0gEjEsYFYGnFkQE17ThiEXMiwW4A8ekF5A==
+  </data>
+ </layer>
+ <layer name="Platform" width="24" height="16">
+  <data encoding="base64" compression="zlib">
+   eJxjYBjeQH+ImUsve0bdjx1Y0cmekQyoFab0jhtTND56WiHXnIEEANKaAoY=
+  </data>
+ </layer>
+ <layer name="Suitcase" width="24" height="16">
+  <data encoding="base64" compression="zlib">
+   eJxjYBiagGWgHTAKRsEoGAVDHAAAGyAABQ==
+  </data>
+ </layer>
+ <layer name="Checkpoints" width="24" height="16">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo4BywDnQDhgFowANjKZJwgAAMbwAEw==
+  </data>
+ </layer>
+</map>

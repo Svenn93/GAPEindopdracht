@@ -294,7 +294,7 @@ h1{
 
 #scores li:nth-child(1):hover{
 	cursor: pointer;
-background-color: rgba(255,255,255,0.8);
+	background-color: rgba(255,255,255,0.8);
 
 }
 
@@ -306,7 +306,7 @@ background-color: rgba(255,255,255,0.8);
 	margin-left: auto;
 	width: 40%;
 	left:28%;
-	top: 30%;
+	top: 25%;
 	margin-right: auto;
 	display: block;
 	text-align: center;
@@ -328,6 +328,10 @@ background-color: rgba(255,255,255,0.8);
 	margin-bottom: 20px;
 }
 
+#inGameMenu li:nth-child(2){
+	margin-bottom: 20px;
+}
+
 #inGameMenu li{
 		list-style-type: none;
 }
@@ -337,6 +341,53 @@ background-color: rgba(255,255,255,0.8);
 	-webkit-text-stroke-width: 5px;
     -webkit-text-stroke-color: black;
 }
+
+#highscore{
+	font-size: 0.5em;
+	display: block;
+	width: 660px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#highscore ul{
+	margin-bottom: 10px;
+	height: 50px;
+	padding: 10px;
+	border-radius: 10px;
+	background-color: black;	
+	text-align: center;
+}
+
+#highscore img{
+		border-radius: 5px;
+}
+
+
+#highscore ul li{
+		height: 50px;
+	display: inline-block;
+	list-style-type: none;
+}
+
+#highscore ul li:nth-child(1){
+	float: left;
+}
+
+#highscore ul li:nth-child(2){
+	position: relative;
+	margin-top: 15px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#highscore ul  li:nth-child(3){
+		margin-top: 15px;
+	position: relative;
+	float: right;
+}
+
+
 
 
 
