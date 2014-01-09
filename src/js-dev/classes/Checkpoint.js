@@ -17,10 +17,17 @@ var Checkpoint = (function(){
 		this.displayobject.addChild(this.sprite);
 	}
 
-	Checkpoint.prototype.update = function() {
-		if(!this.saved){
-			this.sprite.gotoAndStop(this.sprite.currentFrame - 2);
-			this.saved = true;
+	Checkpoint.prototype.update = function(save) {
+		if(save){
+			if(!this.saved){
+				this.sprite.gotoAndStop(this.sprite.currentFrame - 2);
+				this.saved = true;
+			}
+		}else{
+			if(this.saved){
+				this.sprite.gotoAndStop(this.sprite.currentFrame + 2);
+				this.saved = false;
+			}
 		}
 	};
 

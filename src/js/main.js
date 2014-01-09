@@ -16,6 +16,7 @@ var App = (function(){
 	var aantalSeconden;
 	var counterSeconden;
 	var endPoint;
+	var laatsteKeyCode;
 
 	var backgroundPos;
 
@@ -49,6 +50,7 @@ var App = (function(){
 		aantalCheckpoints = 0;
 		aantalSeconden = 0;
 		counterSeconden = 0;
+		laatsteKeyCode = 0;
 
 		paused = false;
 		animated = false;
@@ -84,6 +86,7 @@ var App = (function(){
 	}
 
 	function mapLoadedHandler(){
+		laatsteKeyCode = 65; //normal camera mode
 		world.addChild(map.displayobject);
 		spawnX = map.spawnX;
 		spawnY = map.spawnY;
@@ -183,7 +186,7 @@ var App = (function(){
 		for(var l = 0; l < movingboxes.length; l++) {
 			movingboxes[l].update();
 			var box = movingboxes[l];
-			switch(CollisionDetection.checkCollision(player, box, "movingbox")){
+			switch(CollisionDetection.checkCollision(player, box, "box")){
 
 			case "l":
 				player.velX = 0;
@@ -225,12 +228,18 @@ var App = (function(){
 				if(spawnX !== currentCheckpoint.x)
 				{
 					aantalCheckpoints ++;
+					spawnX = currentCheckpoint.x;
+					spawnY = currentCheckpoint.y;
+					//checkpoints[checkpoints.indexOf(currentCheckpoint)].update(true);
+					for (var c = 0; c < checkpoints.length; c++) {
+						if(checkpoints[c] !== currentCheckpoint){
+							checkpoints[c].update(false);
+						}else{
+							checkpoints[c].update(true);
+						}
+					}
 					document.getElementById("checkpoints").innerHTML = aantalCheckpoints;
 				}
-
-				spawnX = currentCheckpoint.x;
-				spawnY = currentCheckpoint.y;
-				checkpoints[checkpoints.indexOf(currentCheckpoint)].update();
 			}
 		}
 		}
@@ -316,17 +325,23 @@ var App = (function(){
 		keys[event.keyCode] = true;
 
 		if(event.keyCode === 90){
-			updateCameras(1, true);
-			updateCameras(0, false);
-			aantalSwitches++;
-			document.getElementById("aantal").innerHTML = aantalSwitches;
+			if(laatsteKeyCode !== 90){
+				laatsteKeyCode = 90;
+				updateCameras(1, true);
+				updateCameras(0, false);
+				aantalSwitches++;
+				document.getElementById("aantal").innerHTML = aantalSwitches;
+			}
 		}
 
 		if(event.keyCode === 65){
-			updateCameras(1, false);
-			updateCameras(0, true);
-			aantalSwitches++;
-			document.getElementById("aantal").innerHTML = aantalSwitches;
+			if(laatsteKeyCode !== 65){
+				laatsteKeyCode = 65;
+				updateCameras(1, false);
+				updateCameras(0, true);
+				aantalSwitches++;
+				document.getElementById("aantal").innerHTML = aantalSwitches;
+			}
 		}
 	}
 
@@ -439,10 +454,17 @@ var Checkpoint = (function(){
 		this.displayobject.addChild(this.sprite);
 	}
 
-	Checkpoint.prototype.update = function() {
-		if(!this.saved){
-			this.sprite.gotoAndStop(this.sprite.currentFrame - 2);
-			this.saved = true;
+	Checkpoint.prototype.update = function(save) {
+		if(save){
+			if(!this.saved){
+				this.sprite.gotoAndStop(this.sprite.currentFrame - 2);
+				this.saved = true;
+			}
+		}else{
+			if(this.saved){
+				this.sprite.gotoAndStop(this.sprite.currentFrame + 2);
+				this.saved = false;
+			}
 		}
 	};
 
