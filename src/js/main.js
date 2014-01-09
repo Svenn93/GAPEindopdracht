@@ -86,7 +86,9 @@ var App = (function(){
 		if(typeof map !== 'undefined'){
 			world.container.removeChild(map.displayobject);
 		}
+		console.log(map);
 		map = new TileMap(currentLevel);
+		console.log(map);
 		bean.on(map, 'mapLoaded', mapLoadedHandler);
 	}
 
@@ -451,8 +453,7 @@ var App = (function(){
 	function showEndScreen(){
 		$('#endGameMenu').slideDown();
 
-		$("#endGameMenu ul").on("click", "li", function(){
-				console.log($(this).html());
+		$("#endGameMenu ul").on("click", "li", function(e){
 
 				switch($(this).html())
 				{
@@ -464,9 +465,10 @@ var App = (function(){
 					case "Next Level":
 						setTimeout(initializeMap, 500);
 						$("#endGameMenu").slideUp();
+						console.log('Next Level shiiiit', e.currentTarget);
 					break;
 				}
-			});
+		});
 	}
 
 	function menuHandler(){
