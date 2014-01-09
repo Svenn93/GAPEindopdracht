@@ -298,7 +298,7 @@ h1{
 
 }
 
-#inGameMenu
+#inGameMenu, #endGameMenu
 {
 	font-size: 2em;
 	padding: 2%;
@@ -324,19 +324,26 @@ h1{
 
 }
 
-#inGameMenu li:nth-child(1){
+#endGameMenu p{
+	font-size: 0.5em;
+	-webkit-text-stroke-width: 3px;
+	line-height: 40px;
 	margin-bottom: 20px;
 }
 
-#inGameMenu li:nth-child(2){
+#inGameMenu li:nth-child(1), #endGameMenu li:nth-child(1){
 	margin-bottom: 20px;
 }
 
-#inGameMenu li{
+#inGameMenu li:nth-child(2), #endGameMenu li:nth-child(2){
+	margin-bottom: 20px;
+}
+
+#inGameMenu li, #endGameMenu li{
 		list-style-type: none;
 }
 
-#inGameMenu li:hover{
+#inGameMenu li:hover, #endGameMenu li:hover{
 	cursor: pointer;
 	-webkit-text-stroke-width: 5px;
     -webkit-text-stroke-color: black;

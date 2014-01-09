@@ -10,6 +10,7 @@ var TileMap = (function(){
 		this.platformtiles = [];
 		this.movingtiles = [];
 		this.checkpoints = [];
+		this.traps = [];
 		this.displayobject = new createjs.Container();
 		this.tileset = new Image();
 		this.tileset.src = "maps/tilemap.png";
@@ -160,6 +161,13 @@ var TileMap = (function(){
 							console.log("Checkpoint added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.checkpoints.push(worldTile);
+						break;
+
+						case "Trap":
+							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
+							console.log("Trap added");
+							this.displayobject.addChild(worldTile.displayobject);
+							this.traps.push(worldTile);
 						break;
 					}
 				}

@@ -34,6 +34,8 @@ var App = (function(){
 	var animated;
 	var previousDirection;
 
+	var levelDone = false;
+
 
 	function App(level){
 		boxes = [];
@@ -57,7 +59,7 @@ var App = (function(){
 		previousDirection = "right";
 
 		cameraVisibilities = [];
-		currentLevel = 5;
+		currentLevel = 1;
 		currentCheckpoint = -1;
 		spawnX = 0;
 		spawnY = 0;
@@ -71,8 +73,7 @@ var App = (function(){
 		world.boundH = -(world.height-height);
 		world.boundW = -(world.width-width);
 
-		map = new TileMap(currentLevel);
-		bean.on(map, 'mapLoaded', mapLoadedHandler);
+		initializeMap();
 
 		window.onkeydown = keydown;
 		window.onkeyup = keyup;
@@ -81,7 +82,16 @@ var App = (function(){
 		stage.addChild(world.container);
 	}
 
+	function initializeMap(){
+		if(typeof map !== 'undefined'){
+			world.container.removeChild(map.displayobject);
+		}
+		map = new TileMap(currentLevel);
+		bean.on(map, 'mapLoaded', mapLoadedHandler);
+	}
+
 	function mapLoadedHandler(){
+		levelDone = false;
 		boxes.length = 0;
 		platforms.length = 0;
 		deathzones.length = 0;
@@ -89,6 +99,7 @@ var App = (function(){
 		checkpoints.length = 0;
 		cameras[0].length = 0;
 		cameras[1].length = 0;
+		cameras[2].length = 0;
 		console.log('MAP IS GELADEN');
 
 		laatsteKeyCode = 65; //normal camera mode
@@ -98,32 +109,59 @@ var App = (function(){
 		spawnY = map.spawnY;
 		console.log(player);
 
-		if(typeof player === "undefined"){
-			player = new Player(spawnX, spawnY);
-			player.gravity = world.gravity;
-			player.friction = world.friction;
-			world.addChild(player.displayobject);
-		}
-		player.x = spawnX;
-		player.y = spawnY;
-
 		//collision logica
 		boxes = boxes.concat(map.collisiontiles);
 		platforms = map.platformtiles;
-		deathzones = map.deathzones;
+		console.log('map traps: ', map.traps);
+		deathzones = map.deathzones.concat(map.traps);
 		movingboxes = map.movingtiles;
 		checkpoints = map.checkpoints;
 		//camera logica
 		cameras[0] = map.collisiontiles.concat(map.worldtiles, map.deathzones, map.platformtiles);
 		cameras[1] = map.movingtiles;
-		//initCameras();
+		cameras[2] = map.traps;
+		initCameras();
 
 		endPoint = map.endPoint;
 
+		//player altijd opnieuw aanmaken, easel ondersteund geen childIndex, numchildren. Enkel op stage = niet handig.
+		if(typeof player !== 'undefined'){
+			player.x = spawnX;
+			player.y = spawnY;
+			world.removeChild(player);
+			world.addChild(player);
+			
+		}else{
+			player = new Player(spawnX, spawnY);
+			player.gravity = world.gravity;
+			player.friction = world.friction;
+			world.addChild(player.displayobject);
+		}
+		
 		ticker = createjs.Ticker;
 		ticker.setFPS('60');
 		ticker.addEventListener('tick', update);
 
+	}
+
+	function restartLevel(){
+		levelDone = false;
+		laatsteKeyCode = 65;
+
+		spawnX = map.spawnX;
+		spawnY = map.spawnY;
+		player.x = spawnX;
+		player.y = spawnY;
+
+		initCameras();
+
+		for (var c = 0; c < checkpoints.length; c++) {
+			checkpoints[c].update(false);
+		}
+
+		ticker = createjs.Ticker;
+		ticker.setFPS('60');
+		ticker.addEventListener('tick', update);
 	}
 
 	function update() {
@@ -224,13 +262,12 @@ var App = (function(){
 		}
 
 		if(CollisionDetection.checkCollisionSimple(player, endPoint)){
-			ticker.removeEventListener('tick', update);
-			world.container.removeChild(map.displayobject);
-			currentLevel ++;
-			console.log('EINDE SPEL:', boxes, platforms, deathzones, movingboxes, checkpoints);
-			console.log('GOTTA CATCH EM ALL');
-			map = new TileMap(currentLevel);
-			bean.on(map, 'mapLoaded', mapLoadedHandler);
+			
+			if(!levelDone){
+				currentLevel++;
+				levelDone = true;
+				setTimeout(showEndScreen, 500);
+			}
 
 		}
 
@@ -260,7 +297,7 @@ var App = (function(){
 		}
 		}
 
-		if(keys[37]){
+		if(keys[37] && !levelDone){
 			//links
 			if(player.velX > -player.speed){
 				if(player.friction === 1){
@@ -292,7 +329,7 @@ var App = (function(){
 			}
 		}
 
-		if(keys[38]){
+		if(keys[38] && !levelDone){
 			//omhoog
 			if(player.grounded && !player.jumping){
 				player.grounded = false;
@@ -301,7 +338,7 @@ var App = (function(){
 			}
 		}
 
-		if(keys[39]){
+		if(keys[39] && !levelDone){
 			//rechts
 			if(player.velX < player.speed) {
 				//Wanneer friction 1 is => zit je op moving platform left of right;
@@ -345,6 +382,7 @@ var App = (function(){
 				laatsteKeyCode = 90;
 				updateCameras(1, true);
 				updateCameras(0, false);
+				updateCameras(2, false);
 				aantalSwitches++;
 				document.getElementById("aantal").innerHTML = aantalSwitches;
 			}
@@ -355,6 +393,19 @@ var App = (function(){
 				laatsteKeyCode = 65;
 				updateCameras(1, false);
 				updateCameras(0, true);
+				updateCameras(2, false);
+				aantalSwitches++;
+				document.getElementById("aantal").innerHTML = aantalSwitches;
+			}
+		}
+
+		if(event.keyCode === 69){
+			if(cameras[2].length !== 0 && laatsteKeyCode !== 69)
+			{
+				laatsteKeyCode = 69;
+				updateCameras(2, true);
+				updateCameras(1, false);
+				updateCameras(0, false);
 				aantalSwitches++;
 				document.getElementById("aantal").innerHTML = aantalSwitches;
 			}
@@ -377,10 +428,16 @@ var App = (function(){
 		console.log("init cameras");
 		cameraVisibilities[0] = true;
 		cameraVisibilities[1] = false;
+		cameraVisibilities[2] = false;
 
 		for (var i = 0; i < cameras[1].length; i++)
 		{
 			cameras[1][i].displayobject.visible = false;
+		}
+
+		for (var j = 0; j < cameras[2].length; j++)
+		{
+			cameras[2][j].displayobject.visible = false;
 		}
 	}
 
@@ -393,12 +450,35 @@ var App = (function(){
 		}
 	}
 
+	function showEndScreen(){
+		$('#endGameMenu').slideDown();
+
+		$("#endGameMenu ul").on("click", "li", function(){
+				console.log($(this).html());
+
+				switch($(this).html())
+				{
+					case "Restart":
+						restartLevel();
+						$('#endGameMenu').slideUp();
+					break;
+
+					case "Next Level":
+						setTimeout(initializeMap, 500);
+						$("#endGameMenu").slideUp();
+					break;
+				}
+
+			});
+	}
+
 	function menuHandler(){
 
 		$("#inGameMenu").slideToggle();
 
 		if(paused === false)
 		{
+			paused = true;
 			ticker.removeEventListener("tick", update);
 			$("#inGameMenu ul").on("click", "li", function(){
 				console.log($(this).html());
@@ -421,7 +501,7 @@ var App = (function(){
 				}
 
 			});
-			paused = true;
+			
 		}
 		else if(paused === true)
 		{
@@ -941,6 +1021,7 @@ var TileMap = (function(){
 		this.platformtiles = [];
 		this.movingtiles = [];
 		this.checkpoints = [];
+		this.traps = [];
 		this.displayobject = new createjs.Container();
 		this.tileset = new Image();
 		this.tileset.src = "maps/tilemap.png";
@@ -1092,6 +1173,13 @@ var TileMap = (function(){
 							this.displayobject.addChild(worldTile.displayobject);
 							this.checkpoints.push(worldTile);
 						break;
+
+						case "Trap":
+							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
+							console.log("Trap added");
+							this.displayobject.addChild(worldTile.displayobject);
+							this.traps.push(worldTile);
+						break;
 					}
 				}
 			}
@@ -1163,6 +1251,7 @@ var World =(function(){
 		$("#logo").hide();
 		$("#logo2").hide();
 		$("#inGameMenu").hide();
+		$("#endGameMenu").hide();
 		$("#highscore").hide();
 
 		setInterval(function(){

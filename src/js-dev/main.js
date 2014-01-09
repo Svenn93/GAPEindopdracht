@@ -15,6 +15,7 @@
 		$("#logo").hide();
 		$("#logo2").hide();
 		$("#inGameMenu").hide();
+		$("#endGameMenu").hide();
 		$("#highscore").hide();
 
 		setInterval(function(){
