@@ -475,7 +475,7 @@ var App = (function(){
 			$('#nextLevel').on('click', showEndMovie);
 		}
 
-		$('#score').html((aantalSeconden) + (aantalSwitches*10) + (aantalCheckpoints*20));
+		$('#endGameMenu').find("span").html((aantalSeconden) + (aantalSwitches*10) + (aantalCheckpoints*20));
 	}
 
 	function showEndMovie(){
@@ -1322,7 +1322,7 @@ var World =(function(){
 
 })();
 
-/*globals App:true, FB:true*/
+/*globals App:true, FB:true, Konami:true*/
 
 (function()
 {
@@ -1331,6 +1331,8 @@ var World =(function(){
 
 	function init()
 	{
+		var easter_egg = new Konami(showEverything);
+
 		var aantalLevels = 8;
 		menu();
 		$("#levels").hide();
@@ -1348,6 +1350,15 @@ var World =(function(){
 		setInterval(function(){
 			animation();
 		},1000);
+	}
+
+	function showEverything() {
+		var scores = {};
+		for(var j = 1; j<= 8; j++){
+			var levelstr = 'level' + j;
+			scores[levelstr] = 'HXORZ';
+		}
+		localStorage.setItem('scores', JSON.stringify(scores));
 	}
 
 
@@ -1457,6 +1468,27 @@ var World =(function(){
 			}
 		});
 
+		var levels = $('#levels li');
+		var scores = {};
+
+		if(localStorage && localStorage.getItem('scores')){
+			var aantalLevelsUitgespeeld = 0;
+			scores = JSON.parse(localStorage.getItem('scores'));
+			for (var i = 1; i<= 8; i++){
+				var levelString = "level" + i;
+				if(scores[levelString] !== 0){
+					aantalLevelsUitgespeeld++;
+					$(levels[i-1]).find('span').html(scores[levelString]);
+				}else{
+					$(levels[i-1]).find('span').html("???");
+				}
+			}
+
+			for(var j = 1; j<= aantalLevelsUitgespeeld; j++){
+				$(levels[j]).addClass('show');
+			}
+		}
+
 		$("h1").click(function(){
 			if($(this).html() === menuItems[0])
 			{
@@ -1465,12 +1497,6 @@ var World =(function(){
 
 			}
 		});
-
-		/*var levels = $('#levels li');
-		if(localStorage && localStorage.getItem('scores'));
-		for (var i = 1; <= 8; i++){
-
-		}*/
 
 		$("#levels li").click(function(){
 

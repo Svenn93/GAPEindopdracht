@@ -473,7 +473,7 @@ var App = (function(){
 			$('#nextLevel').on('click', showEndMovie);
 		}
 
-		$('#score').html((aantalSeconden) + (aantalSwitches*10) + (aantalCheckpoints*20));
+		$('#endGameMenu').find("span").html((aantalSeconden) + (aantalSwitches*10) + (aantalCheckpoints*20));
 	}
 
 	function showEndMovie(){
