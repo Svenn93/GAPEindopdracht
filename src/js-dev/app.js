@@ -78,6 +78,7 @@ var App = (function(){
 		if(currentLevel === 0){
 			
 			var videoplayer = $('#videoPlayer');
+			videoplayer.slideDown();
 			var mp4vid = $('#mp4source');
 			var oggvid = $('#oggsource');
 
@@ -119,9 +120,9 @@ var App = (function(){
         createjs.Sound.registerManifest(manifest, assetsPath);
 	}
 
-	function videoEnded(){
-		console.log('video Ended');
-		initializeMap();
+	function videoEnded() {
+		$('#videoPlayer').slideUp();
+		setTimeout(initializeMap, 600);
 		createjs.Sound.play(3);
 	}
 

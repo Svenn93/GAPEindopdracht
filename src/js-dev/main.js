@@ -20,6 +20,7 @@
 		$("#inGameMenu").hide();
 		$("#endGameMenu").hide();
 		$("#highscore").hide();
+		$('#videoPlayer').hide();
 
 		$("#guy").on('click', fbLogin);
 
@@ -185,8 +186,6 @@
 					}else{
 						startGame(aantalLevels);
 					}
-					
-
 			}
 		});
 
