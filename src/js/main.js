@@ -79,29 +79,17 @@ var App = (function(){
 
 		if(currentLevel === 0){
 			
-			var videoplayer = $('#videoPlayer');
-			videoplayer.slideDown();
-			var mp4vid = $('#mp4source');
-			var oggvid = $('#oggsource');
+			playVideo("video/Intro.mp4", "video/Intro.oggtheora.ogv");
 
-			videoplayer[0].pause();
-			videoplayer[0].addEventListener('ended', videoEnded);
-
-			$(mp4vid).attr("src", "video/Intro.mp4");
-			$(oggvid).attr("src", "video/Intro.oggtheora.ogv");
-
-			videoplayer[0].load();
-			videoplayer[0].play();
-
+		}else if(currentLevel === 4){
+			playVideo("video/traps.mp4", "video/traps.oggtheora.ogv");
 		}else{
 			initializeMap();
+			score = new Score();
+			menu = new Menu();
+			bean.on(menu, 'pausedStateChanged', pauseHandler);
+			$("#endGameMenu ul").on("click", "li", endGameItemHandler);
 		}
-
-		score = new Score();
-
-		menu = new Menu();
-		bean.on(menu, 'pausedStateChanged', pauseHandler);
-		$("#endGameMenu ul").on("click", "li", endGameItemHandler);
 
 		window.onkeydown = keydown;
 		window.onkeyup = keyup;
@@ -118,17 +106,53 @@ var App = (function(){
         ];
 
         createjs.Sound.alternateExtensions = ["mp3"];        // add other extensions to try loading if the src file extension is not supported
-        createjs.Sound.addEventListener("fileload"); // add an event listener for when load is completed
+        createjs.Sound.addEventListener("fileload", createjs.proxy(loadedHandler, this)); // add an event listener for when load is completed
         createjs.Sound.registerManifest(manifest, assetsPath);
 	}
 
-	function videoEnded() {
-		$('#videoPlayer').slideUp();
-		setTimeout(initializeMap, 600);
-		createjs.Sound.play(3);
+	function playVideo(source1, source2){
+		var videoplayer = $('#videoPlayer');
+		videoplayer.slideDown();
+		var mp4vid = $('#mp4source');
+		var oggvid = $('#oggsource');
+
+		videoplayer[0].pause();
+		videoplayer[0].addEventListener('ended', videoEnded);
+
+		$(mp4vid).attr("src", source1);
+		$(oggvid).attr("src", source2);
+
+		videoplayer[0].load();
+		videoplayer[0].play();
+		createjs.Sound.stop(3);
 	}
 
+	function loadedHandler(){
+		if($("#videoPlayer").is(':visible'))
+		{
+			createjs.Sound.play(3);
+			createjs.Sound.stop(3);
 
+		}else{
+			createjs.Sound.play(3);
+		}
+		
+	}
+
+	function videoEnded() {
+		if(currentLevel < 8){
+			$('#videoPlayer').slideUp();
+			setTimeout(initializeMap, 600);
+			score = new Score();
+			menu = new Menu();
+			bean.on(menu, 'pausedStateChanged', pauseHandler);
+			$("#endGameMenu ul").on("click", "li", endGameItemHandler);
+			createjs.Sound.play(3);
+		}else{
+			$('#videoPlayer').slideUp();
+			setTimeout(function(){location.reload();}, 1000);
+		}
+	}
 
 	function initializeMap(){
 		currentLevel++;
@@ -524,13 +548,19 @@ var App = (function(){
 		if(currentLevel === 8){
 			$('#nextLevel').html('continue');
 			$('#nextLevel').on('click', showEndMovie);
+
 		}
 
 		$('#endGameMenu').find("span").html((aantalSeconden) + (aantalSwitches*10) + (aantalCheckpoints*20));
 	}
 
 	function showEndMovie(){
-		console.log('einde');
+		ticker.removeEventListener('tick', update);
+		stage.removeAllChildren();
+		stage.update();
+		playVideo("video/end.mp4", "video/end.oggtheora.ogv");
+		$("#endGameMenu").slideUp();
+		$("#inGameMenuButton").off("click");
 	}
 
 	function endGameItemHandler(e){
@@ -549,11 +579,17 @@ var App = (function(){
 
 			case "Next Level":
 			if(levelDone && currentLevel < 8){
-				score.saveScore(currentLevel, (aantalSeconden) + (aantalSwitches*10) + (aantalCheckpoints*20));
-				setTimeout(initializeMap, 500);
-				$("#endGameMenu").slideUp();
-				createjs.Sound.stop(1);
-				createjs.Sound.play(3);
+				if(currentLevel === 4){
+					score.saveScore(currentLevel, (aantalSeconden) + (aantalSwitches*10) + (aantalCheckpoints*20));
+					playVideo('video/traps.mp4', 'video/traps.oggtheora.ogv');
+					$("#endGameMenu").slideUp();
+				}else{
+					score.saveScore(currentLevel, (aantalSeconden) + (aantalSwitches*10) + (aantalCheckpoints*20));
+					setTimeout(initializeMap, 500);
+					$("#endGameMenu").slideUp();
+					createjs.Sound.stop(1);
+					createjs.Sound.play(3);
+				}
 			}
 			break;
 		}
@@ -716,17 +752,15 @@ var Menu = (function(){
 		this.restart = false;
 		$('#inGameMenuButton').click($.proxy(this.menuHandler, this));
 		$("#inGameMenu ul").on("click", "li", $.proxy(this.menuItemHandler, this));
-
-
 	}
 
 	Menu.prototype.menuItemHandler = function(e){
 		e.preventDefault();
 		switch($(e.currentTarget).html())
 		{
-			/*case "Main menu":
-
-			break;*/
+			case "Main menu":
+				location.reload();
+			break;
 
 			case "Restart":
 				if(this.paused){
@@ -1401,6 +1435,7 @@ var World =(function(){
 		$("#inGameMenu").hide();
 		$("#endGameMenu").hide();
 		$("#highscore").hide();
+		$('#videoPlayer').hide();
 
 		$("#guy").on('click', fbLogin);
 
@@ -1413,7 +1448,7 @@ var World =(function(){
 		var scores = {};
 		for(var j = 1; j<= 8; j++){
 			var levelstr = 'level' + j;
-			scores[levelstr] = 'HXORZ';
+			scores[levelstr] = '666';
 		}
 		localStorage.setItem('scores', JSON.stringify(scores));
 		location.reload();

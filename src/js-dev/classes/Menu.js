@@ -6,17 +6,15 @@ var Menu = (function(){
 		this.restart = false;
 		$('#inGameMenuButton').click($.proxy(this.menuHandler, this));
 		$("#inGameMenu ul").on("click", "li", $.proxy(this.menuItemHandler, this));
-
-
 	}
 
 	Menu.prototype.menuItemHandler = function(e){
 		e.preventDefault();
 		switch($(e.currentTarget).html())
 		{
-			/*case "Main menu":
-
-			break;*/
+			case "Main menu":
+				location.reload();
+			break;
 
 			case "Restart":
 				if(this.paused){

@@ -53,6 +53,10 @@ body {
 	user-select: none;
 }
 
+video{
+	width:100%;
+}
+
 
 
 body:-webkit-full-screen, body:-moz-full-screen,body:full-screen {

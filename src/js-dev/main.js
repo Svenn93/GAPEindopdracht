@@ -20,6 +20,7 @@
 		$("#inGameMenu").hide();
 		$("#endGameMenu").hide();
 		$("#highscore").hide();
+		$('#videoPlayer').hide();
 
 		$("#guy").on('click', fbLogin);
 
@@ -32,7 +33,7 @@
 		var scores = {};
 		for(var j = 1; j<= 8; j++){
 			var levelstr = 'level' + j;
-			scores[levelstr] = 'HXORZ';
+			scores[levelstr] = '666';
 		}
 		localStorage.setItem('scores', JSON.stringify(scores));
 		location.reload();
