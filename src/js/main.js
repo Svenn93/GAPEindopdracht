@@ -1540,23 +1540,41 @@ var World =(function(){
 		var levels = $('#levels li');
 		var scores = {};
 		var aantalLevelsUitgespeeld = 0;
-		if(localStorage && localStorage.getItem('scores')){
+
+
+		FB.getLoginStatus(function(response)
+		{
+			if (response.status === 'connected')
+			{
+				var uid = response.authResponse.userID;
+				console.log("facebook is connected");
+			}
+			else
+			{
+				if(localStorage && localStorage.getItem('scores'))
+				{
 			
-			scores = JSON.parse(localStorage.getItem('scores'));
-			for (var i = 1; i<= 8; i++){
-				var levelString = "level" + i;
-				if(scores[levelString] !== 0){
-					aantalLevelsUitgespeeld++;
-					$(levels[i-1]).find('span').html(scores[levelString]);
-				}else{
-					$(levels[i-1]).find('span').html("???");
+				scores = JSON.parse(localStorage.getItem('scores'));
+				for (var i = 1; i<= 8; i++)
+				{
+					var levelString = "level" + i;
+					if(scores[levelString] !== 0)
+					{
+						aantalLevelsUitgespeeld++;
+						$(levels[i-1]).find('span').html(scores[levelString]);
+					}else
+					{
+						$(levels[i-1]).find('span').html("???");
+					}
+				}
+
+				for(var j = 1; j<= aantalLevelsUitgespeeld; j++)
+				{
+					$(levels[j]).addClass('show');
+				}
 				}
 			}
-
-			for(var j = 1; j<= aantalLevelsUitgespeeld; j++){
-				$(levels[j]).addClass('show');
-			}
-		}
+		});
 
 		$("h1").click(function(){
 			if($(this).html() === menuItems[0])
