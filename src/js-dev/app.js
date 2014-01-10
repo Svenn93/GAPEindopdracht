@@ -75,7 +75,24 @@ var App = (function(){
 		world.boundH = -(world.height-height);
 		world.boundW = -(world.width-width);
 
-		initializeMap();
+		if(currentLevel === 0){
+			
+			var videoplayer = $('#videoPlayer');
+			var mp4vid = $('#mp4source');
+			var oggvid = $('#oggsource');
+
+			videoplayer[0].pause();
+			videoplayer[0].addEventListener('ended', videoEnded);
+
+			$(mp4vid).attr("src", "video/Intro.mp4");
+			$(oggvid).attr("src", "video/Intro.oggtheora.ogv");
+
+			videoplayer[0].load();
+			videoplayer[0].play();
+
+		}else{
+			initializeMap();
+		}
 
 		score = new Score();
 
@@ -88,29 +105,27 @@ var App = (function(){
 
 		stage.addChild(world.container);
 
-			var assetsPath = "audio/";
-            var manifest = [
-				{src:"afterLevel.ogg", id:1},
-				{src:"death.ogg", id:2},
-				{src:"inGameMusic.ogg", id:3},
-				{src:"jump.ogg", id:4},
-                {src:"safe.ogg", id:5},
-            ];
+		var assetsPath = "audio/";
+        var manifest = [
+			{src:"afterLevel.ogg", id:1},
+			{src:"death.ogg", id:2},
+			{src:"inGameMusic.ogg", id:3},
+			{src:"jump.ogg", id:4},
+            {src:"safe.ogg", id:5},
+        ];
 
-             createjs.Sound.alternateExtensions = ["mp3"];        // add other extensions to try loading if the src file extension is not supported
-            createjs.Sound.addEventListener("fileload", createjs.proxy(soundLoaded, this)); // add an event listener for when load is completed
-            createjs.Sound.registerManifest(manifest, assetsPath);
-}
-
-    function soundLoaded(event)
-    {
-		playTheme();
+        createjs.Sound.alternateExtensions = ["mp3"];        // add other extensions to try loading if the src file extension is not supported
+        createjs.Sound.addEventListener("fileload"); // add an event listener for when load is completed
+        createjs.Sound.registerManifest(manifest, assetsPath);
 	}
 
-	function playTheme()
-	{
-		var instance = createjs.Sound.play(3, createjs.Sound.INTERRUPT_NONE, 0, 0, false, 1);
+	function videoEnded(){
+		console.log('video Ended');
+		initializeMap();
+		createjs.Sound.play(3);
 	}
+
+
 
 	function initializeMap(){
 		currentLevel++;
@@ -523,6 +538,8 @@ var App = (function(){
 			case "Restart":
 			if(levelDone){
 				restartLevel();
+				createjs.Sound.stop(1);
+				createjs.Sound.play(3);
 				$('#endGameMenu').slideUp();
 			}
 			break;
@@ -549,6 +566,8 @@ var App = (function(){
 				restartLevel();
 				menu.setRestart(false);
 				console.log('RESTART', menu.restart);
+				createjs.Sound.stop(1);
+				createjs.Sound.play(3);
 			}else{
 				ticker.addEventListener('tick', update);
 				timer = setInterval(countSeconds, 1000);

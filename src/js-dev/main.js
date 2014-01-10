@@ -4,12 +4,12 @@
 {
 	var menuItems = ["PLAY","LEVELS","CONTROLS","TOP 5"];
 	var timer = 0;
-
+	var aantalLevels = 8;
 	function init()
 	{
 		var easter_egg = new Konami(showEverything);
 
-		var aantalLevels = 8;
+		
 		menu();
 		$("#levels").hide();
 		$("#controls").hide();
@@ -35,6 +35,7 @@
 			scores[levelstr] = 'HXORZ';
 		}
 		localStorage.setItem('scores', JSON.stringify(scores));
+		location.reload();
 	}
 
 
@@ -146,9 +147,9 @@
 
 		var levels = $('#levels li');
 		var scores = {};
-
+		var aantalLevelsUitgespeeld = 0;
 		if(localStorage && localStorage.getItem('scores')){
-			var aantalLevelsUitgespeeld = 0;
+			
 			scores = JSON.parse(localStorage.getItem('scores'));
 			for (var i = 1; i<= 8; i++){
 				var levelString = "level" + i;
@@ -169,7 +170,12 @@
 			if($(this).html() === menuItems[0])
 			{
 					//logica voor het ophalen van de local storage
-					startGame(1);
+					if(aantalLevelsUitgespeeld < aantalLevels){
+						startGame(aantalLevelsUitgespeeld+1);
+					}else{
+						startGame(aantalLevels);
+					}
+					
 
 			}
 		});
