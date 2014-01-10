@@ -2,7 +2,7 @@
 
 /*globals stage:true, Bound:true, Platform:true, CollisionDetection:true, 
 MovingPlatform:true, Menu:true, createjs:true, FPSMeter:true, 
-bean:true, World:true, Player:true, Image:true, WorldTile:true, TileMap:true*/
+bean:true, World:true, Player:true, Image:true, WorldTile:true, TileMap:true, Score:true*/
 var App = (function(){
 
 	var boxes, platforms, movingboxes, player, keys, width, height, x;
@@ -37,6 +37,7 @@ var App = (function(){
 
 	var levelDone = false;
 	var timer;
+	var score;
 
 
 	function App(level){
@@ -75,6 +76,8 @@ var App = (function(){
 		world.boundW = -(world.width-width);
 
 		initializeMap();
+
+		score = new Score();
 
 		menu = new Menu();
 		bean.on(menu, 'pausedStateChanged', pauseHandler);
@@ -467,6 +470,16 @@ var App = (function(){
 	function showEndScreen(){
 		clearInterval(timer);
 		$('#endGameMenu').slideDown();
+		if(currentLevel === 8){
+			$('#nextLevel').html('continue');
+			$('#nextLevel').on('click', showEndMovie);
+		}
+
+		$('#score').html((aantalSeconden) + (aantalSwitches*10) + (aantalCheckpoints*20));
+	}
+
+	function showEndMovie(){
+		console.log('einde');
 	}
 
 	function endGameItemHandler(e){
@@ -482,10 +495,10 @@ var App = (function(){
 			break;
 
 			case "Next Level":
-			if(levelDone){
+			if(levelDone && currentLevel < 8){
+				score.saveScore(currentLevel, (aantalSeconden) + (aantalSwitches*10) + (aantalCheckpoints*20));
 				setTimeout(initializeMap, 500);
 				$("#endGameMenu").slideUp();
-				
 			}
 			break;
 		}
@@ -1031,13 +1044,32 @@ var Score = (function(){
 		this.aantalLevels = 8;
 		this.scores = {};
 
-		for(var i = 1; i <= this.aantalLevels; i++)
-		{
-			var level = 'level' +i;
-			this.scores[level] = 0;
+		if(localStorage && localStorage.getItem('scores')){
+			this.scores = JSON.parse(localStorage.getItem('scores'));
+		}else{
+			for(var i = 1; i <= this.aantalLevels; i++)
+			{
+				var level = 'level' +i;
+				this.scores[level] = 0;
+			}
 		}
-
+		
 	}
+
+	Score.prototype.saveScore = function(level, score) {
+		var levelString = "level" + level;
+		this.scores[levelString] = score;
+		this.saveScoresToLocalStorage();
+	};
+
+	Score.prototype.saveScoresToLocalStorage = function() {
+		localStorage.setItem('scores', JSON.stringify(this.scores));
+		this.syncScores();
+	};
+
+	Score.prototype.syncScores = function() {
+		console.log('fb shit');
+	};
 	return Score;
 
 })();
@@ -1299,6 +1331,7 @@ var World =(function(){
 
 	function init()
 	{
+		var aantalLevels = 8;
 		menu();
 		$("#levels").hide();
 		$("#controls").hide();
@@ -1433,6 +1466,12 @@ var World =(function(){
 			}
 		});
 
+		/*var levels = $('#levels li');
+		if(localStorage && localStorage.getItem('scores'));
+		for (var i = 1; <= 8; i++){
+
+		}*/
+
 		$("#levels li").click(function(){
 
 			if ($(this).hasClass("show"))
@@ -1443,6 +1482,7 @@ var World =(function(){
 		});
 
 	}
+
 
 	function startGame(level)
 	{

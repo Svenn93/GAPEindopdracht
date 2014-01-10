@@ -7,6 +7,7 @@
 
 	function init()
 	{
+		var aantalLevels = 8;
 		menu();
 		$("#levels").hide();
 		$("#controls").hide();
@@ -141,6 +142,12 @@
 			}
 		});
 
+		/*var levels = $('#levels li');
+		if(localStorage && localStorage.getItem('scores'));
+		for (var i = 1; <= 8; i++){
+
+		}*/
+
 		$("#levels li").click(function(){
 
 			if ($(this).hasClass("show"))
@@ -151,6 +158,7 @@
 		});
 
 	}
+
 
 	function startGame(level)
 	{

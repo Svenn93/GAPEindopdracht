@@ -1,6 +1,6 @@
 /*globals stage:true, Bound:true, Platform:true, CollisionDetection:true, 
 MovingPlatform:true, Menu:true, createjs:true, FPSMeter:true, 
-bean:true, World:true, Player:true, Image:true, WorldTile:true, TileMap:true*/
+bean:true, World:true, Player:true, Image:true, WorldTile:true, TileMap:true, Score:true*/
 var App = (function(){
 
 	var boxes, platforms, movingboxes, player, keys, width, height, x;
@@ -35,6 +35,7 @@ var App = (function(){
 
 	var levelDone = false;
 	var timer;
+	var score;
 
 
 	function App(level){
@@ -73,6 +74,8 @@ var App = (function(){
 		world.boundW = -(world.width-width);
 
 		initializeMap();
+
+		score = new Score();
 
 		menu = new Menu();
 		bean.on(menu, 'pausedStateChanged', pauseHandler);
@@ -465,6 +468,16 @@ var App = (function(){
 	function showEndScreen(){
 		clearInterval(timer);
 		$('#endGameMenu').slideDown();
+		if(currentLevel === 8){
+			$('#nextLevel').html('continue');
+			$('#nextLevel').on('click', showEndMovie);
+		}
+
+		$('#score').html((aantalSeconden) + (aantalSwitches*10) + (aantalCheckpoints*20));
+	}
+
+	function showEndMovie(){
+		console.log('einde');
 	}
 
 	function endGameItemHandler(e){
@@ -481,10 +494,9 @@ var App = (function(){
 
 			case "Next Level":
 			if(levelDone && currentLevel < 8){
+				score.saveScore(currentLevel, (aantalSeconden) + (aantalSwitches*10) + (aantalCheckpoints*20));
 				setTimeout(initializeMap, 500);
 				$("#endGameMenu").slideUp();
-			}else{
-				
 			}
 			break;
 		}
