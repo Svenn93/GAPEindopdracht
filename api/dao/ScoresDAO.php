@@ -11,10 +11,22 @@ class ScoresDAO
         $this->pdo = DatabasePDO::getInstance();
     }
 
+    public function getScores()
+    {
+        $sql = 'SELECT * FROM scores ORDER BY score DESC';
+        $stmt = $this->pdo->prepare($sql);
+        if($stmt->execute())
+        {
+            $scores = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if(!empty($scores)){
+                return $scores;
+            }
+        }
+        return array();
+    }
+
     public function getScoresByUserId($userid)
     {
-        $userid = 25;
-        print_r($userid);
         $sql = 'SELECT * FROM scores WHERE userid=:userid';
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(":userid",$userid);
