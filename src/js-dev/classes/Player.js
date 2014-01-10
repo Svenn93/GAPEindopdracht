@@ -13,6 +13,7 @@ var Player = (function(){
 		this.jumping = false;
 		this.width = "";
 		this.height = "";
+		this.death = false;
 		this.displayobject = new createjs.Container();
 		this.displayobject.obj = this;
 		this.displayobject.x = this.x;

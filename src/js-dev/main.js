@@ -18,7 +18,6 @@
 		$("#endGameMenu").hide();
 		$("#highscore").hide();
 
-		$("#fb-root").bind("facebook:init", checkFBStatus);
 		$("#guy").on('click', fbLogin);
 
 		setInterval(function(){
@@ -26,19 +25,6 @@
 		},1000);
 	}
 
-	function checkFBStatus(){
-		FB.getLoginStatus(function(response) {
-			if (response.status === 'connected') {
-			var uid = response.authResponse.userID;
-			var accessToken = response.authResponse.accessToken;
-			$('#menu').append("<img src ='http://graph.facebook.com/" + uid + "/picture' />");
-			} else if (response.status === 'not_authorized') {
-			$('#menu').append("<p>ingelogd, zonder permisse</p>");
-			} else {
-			$('#menu').append("<p>niet ingelogd, zonder permisse</p>");
-			}
-		});
-	}
 
 	function fbLogin(){
 		FB.login(function(response) {
@@ -46,6 +32,7 @@
 			if (response.authResponse) {
 				$('#menu').append("<img src ='http://graph.facebook.com/" + response.authResponse.userID + "/picture");
 			} else {
+
 				console.log(response);
 			}
 		});

@@ -1,22 +1,26 @@
 (function(){
- window.fbAsyncInit = function() {
     // init the FB JS SDK
+  $.ajaxSetup({ cache: true });
+  $.getScript('//connect.facebook.net/en_UK/all.js', function(){
     FB.init({
-      appId      : '183745065168258',                     // App ID from the app dashboard
-      status     : true,                                 // Check Facebook Login status
-      xfbml      : true                                  // Look for social plugins on the page
+      appId: '183745065168258',
+    });     
+    FB.getLoginStatus(checkFBStatus);
+
+    function checkFBStatus(){
+    FB.getLoginStatus(function(response) {
+      if (response.status === 'connected') {
+      var uid = response.authResponse.userID;
+      var accessToken = response.authResponse.accessToken;
+      $('#menu').append("<img src ='http://graph.facebook.com/" + uid + "/picture' />");
+      } else if (response.status === 'not_authorized') {
+      $('#menu').append("<p>ingelogd, zonder permisse</p>");
+      } else {
+      $('#menu').append("<p>niet ingelogd, zonder permisse</p>");
+      }
     });
-    jQuery('#fb-root').trigger('facebook:init');
+  }
 
-    // Additional initialization code such as adding Event Listeners goes here
-  };
+  });
 
-  // Load the SDK asynchronously
-  (function(d, s, id){
-     var js, fjs = d.getElementsByTagName(s)[0];
-     if (d.getElementById(id)) {return;}
-     js = d.createElement(s); js.id = id;
-     js.src = "//connect.facebook.net/en_US/all.js";
-     fjs.parentNode.insertBefore(js, fjs);
-   }(document, 'script', 'facebook-jssdk'));
 })();

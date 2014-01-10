@@ -34,6 +34,7 @@ var App = (function(){
 	var previousDirection;
 
 	var levelDone = false;
+	var timer;
 
 
 	function App(level){
@@ -50,7 +51,6 @@ var App = (function(){
 		aantalSwitches = 0;
 		aantalCheckpoints = 0;
 		aantalSeconden = 0;
-		counterSeconden = 0;
 		laatsteKeyCode = 0;
 
 		paused = false;
@@ -58,7 +58,7 @@ var App = (function(){
 		previousDirection = "right";
 
 		cameraVisibilities = [];
-		currentLevel = 1;
+		currentLevel = level - 1;
 		currentCheckpoint = -1;
 		spawnX = 0;
 		spawnY = 0;
@@ -76,6 +76,7 @@ var App = (function(){
 
 		menu = new Menu();
 		bean.on(menu, 'pausedStateChanged', pauseHandler);
+		$("#endGameMenu ul").on("click", "li", endGameItemHandler);
 
 		window.onkeydown = keydown;
 		window.onkeyup = keyup;
@@ -84,6 +85,7 @@ var App = (function(){
 	}
 
 	function initializeMap(){
+		currentLevel++;
 		if(typeof map !== 'undefined'){
 			world.container.removeChild(map.displayobject);
 		}
@@ -92,6 +94,7 @@ var App = (function(){
 	}
 
 	function mapLoadedHandler(){
+		aantalSeconden = 0;
 		levelDone = false;
 		boxes.length = 0;
 		platforms.length = 0;
@@ -101,22 +104,23 @@ var App = (function(){
 		cameras[0].length = 0;
 		cameras[1].length = 0;
 		cameras[2].length = 0;
-		console.log('MAP IS GELADEN');
+		aantalSwitches = 0;
+		aantalCheckpoints = 0;
+		updateTextLabels();
 
 		laatsteKeyCode = 65; //normal camera mode
 		buildBounds();
 		world.addChild(map.displayobject);
 		spawnX = map.spawnX;
 		spawnY = map.spawnY;
-		console.log(player);
 
 		//collision logica
 		boxes = boxes.concat(map.collisiontiles);
 		platforms = map.platformtiles;
-		console.log('map traps: ', map.traps);
 		deathzones = map.deathzones.concat(map.traps);
 		movingboxes = map.movingtiles;
 		checkpoints = map.checkpoints;
+
 		//camera logica
 		cameras[0] = map.collisiontiles.concat(map.worldtiles, map.deathzones, map.platformtiles);
 		cameras[1] = map.movingtiles;
@@ -140,12 +144,21 @@ var App = (function(){
 		ticker = createjs.Ticker;
 		ticker.setFPS('60');
 		ticker.addEventListener('tick', update);
+		timer = setInterval(countSeconds, 1000);
+	}
 
+	function countSeconds(){
+		aantalSeconden++;
 	}
 
 	function restartLevel(){
+		clearInterval(timer);
+		updateTextLabels();
 		levelDone = false;
 		laatsteKeyCode = 65;
+		aantalSwitches = 0;
+		aantalSeconden = 0;
+		aantalCheckpoints = 0;
 
 		spawnX = map.spawnX;
 		spawnY = map.spawnY;
@@ -161,18 +174,10 @@ var App = (function(){
 		ticker = createjs.Ticker;
 		ticker.setFPS('60');
 		ticker.addEventListener('tick', update);
+		timer = setInterval(countSeconds, 1000);
 	}
 
 	function update() {
-
-		if(counterSeconden < 60){
-			counterSeconden ++;
-		}
-		else if(counterSeconden === 60){
-			aantalSeconden ++;
-			counterSeconden = 0;
-			document.getElementById("seconden").innerHTML = aantalSeconden;
-		}
 
 		player.grounded = false;
 
@@ -223,8 +228,10 @@ var App = (function(){
 			case "b":
 				player.grounded = true;
 				player.jumping = false;
-				player.x = spawnX;
-				player.y = spawnY;
+				if(!player.death){
+					ticker.removeEventListener('tick', update);
+					setTimeout(repositionPlayer, 200);
+				}
 			break;
 			}
 		}
@@ -263,7 +270,6 @@ var App = (function(){
 		if(CollisionDetection.checkCollisionSimple(player, endPoint)){
 			
 			if(!levelDone){
-				currentLevel++;
 				levelDone = true;
 				setTimeout(showEndScreen, 500);
 			}
@@ -290,13 +296,12 @@ var App = (function(){
 							checkpoints[c].update(true);
 						}
 					}
-					document.getElementById("checkpoints").innerHTML = aantalCheckpoints;
 				}
 			}
 		}
 		}
 
-		if(keys[37] && !levelDone){
+		if(keys[37] && !levelDone && !player.death){
 			//links
 			if(player.velX > -player.speed){
 				if(player.friction === 1){
@@ -328,7 +333,7 @@ var App = (function(){
 			}
 		}
 
-		if(keys[38] && !levelDone){
+		if(keys[38] && !levelDone && !player.death){
 			//omhoog
 			if(player.grounded && !player.jumping){
 				player.grounded = false;
@@ -337,7 +342,7 @@ var App = (function(){
 			}
 		}
 
-		if(keys[39] && !levelDone){
+		if(keys[39] && !levelDone && !player.death){
 			//rechts
 			if(player.velX < player.speed) {
 				//Wanneer friction 1 is => zit je op moving platform left of right;
@@ -371,6 +376,14 @@ var App = (function(){
 		player.update();
 		player.friction = world.friction;
 		stage.update();
+		updateTextLabels();
+	}
+
+	function repositionPlayer(){
+		ticker.addEventListener('tick', update);
+		player.death = false;
+		player.x = spawnX;
+		player.y = spawnY;
 	}
 
 	function keydown(event) {
@@ -383,7 +396,6 @@ var App = (function(){
 				updateCameras(0, false);
 				updateCameras(2, false);
 				aantalSwitches++;
-				document.getElementById("aantal").innerHTML = aantalSwitches;
 			}
 		}
 
@@ -394,7 +406,6 @@ var App = (function(){
 				updateCameras(0, true);
 				updateCameras(2, false);
 				aantalSwitches++;
-				document.getElementById("aantal").innerHTML = aantalSwitches;
 			}
 		}
 
@@ -406,7 +417,6 @@ var App = (function(){
 				updateCameras(1, false);
 				updateCameras(0, false);
 				aantalSwitches++;
-				document.getElementById("aantal").innerHTML = aantalSwitches;
 			}
 		}
 	}
@@ -450,32 +460,52 @@ var App = (function(){
 	}
 
 	function showEndScreen(){
+		clearInterval(timer);
 		$('#endGameMenu').slideDown();
+	}
 
-		$("#endGameMenu ul").on("click", "li", function(e){
+	function endGameItemHandler(e){
+		e.preventDefault();
+		
+		switch($(this).html())
+		{
+			case "Restart":
+			if(levelDone){
+				restartLevel();
+				$('#endGameMenu').slideUp();
+			}
+			break;
 
-				switch($(this).html())
-				{
-					case "Restart":
-						restartLevel();
-						$('#endGameMenu').slideUp();
-					break;
-
-					case "Next Level":
-						setTimeout(initializeMap, 500);
-						$("#endGameMenu").slideUp();
-						console.log('Next Level shiiiit', e.currentTarget);
-					break;
-				}
-		});
+			case "Next Level":
+			if(levelDone){
+				setTimeout(initializeMap, 500);
+				$("#endGameMenu").slideUp();
+			}
+			break;
+		}
 	}
 
 	function pauseHandler(){
 		if(menu.paused){
+			clearInterval(timer);
 			ticker.removeEventListener('tick', update);
 		}else{
-			ticker.addEventListener('tick', update);
+			console.log(menu.restart);
+			if(menu.restart){
+				restartLevel();
+				menu.setRestart(false);
+				console.log('RESTART', menu.restart);
+			}else{
+				ticker.addEventListener('tick', update);
+				timer = setInterval(countSeconds, 1000);
+			}
 		}
+	}
+
+	function updateTextLabels(){
+		$("#seconden").html(aantalSeconden);
+		$("#aantal").html(aantalSwitches);
+		$("#checkpoints").html(aantalCheckpoints);
 	}
 
 
