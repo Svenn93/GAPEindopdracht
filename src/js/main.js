@@ -91,7 +91,6 @@ var App = (function(){
 			$("#endGameMenu ul").on("click", "li", endGameItemHandler);
 		}
 
-		score.syncScores();
 
 		window.onkeydown = keydown;
 		window.onkeyup = keyup;
@@ -146,6 +145,7 @@ var App = (function(){
 			$('#videoPlayer').slideUp();
 			setTimeout(initializeMap, 600);
 			score = new Score();
+			score.syncScores();
 			menu = new Menu();
 			bean.on(menu, 'pausedStateChanged', pauseHandler);
 			$("#endGameMenu ul").on("click", "li", endGameItemHandler);
@@ -193,7 +193,6 @@ var App = (function(){
 		movingboxes = map.movingtiles;
 		checkpoints = map.checkpoints;
 
-		console.log(checkpoints);
 
 		//camera logica
 		cameras[0] = map.collisiontiles.concat(map.worldtiles, map.deathzones, map.platformtiles);
@@ -358,9 +357,7 @@ var App = (function(){
 		if(keys[32]){
 			for (var b = 0; b < checkpoints.length; b++){
 			if(CollisionDetection.checkCollisionSimple(player, checkpoints[b])){
-				console.log('collision aant checken');
 				currentCheckpoint = checkpoints[b];
-				console.log(currentCheckpoint, spawnX);
 				if(spawnX !== currentCheckpoint.x)
 				{
 					var instance = createjs.Sound.play(5, createjs.Sound.INTERRUPT_NONE, 0, 0, false, 1);
@@ -368,7 +365,6 @@ var App = (function(){
 					spawnX = currentCheckpoint.x;
 					spawnY = currentCheckpoint.y;
 					for (var c = 0; c < checkpoints.length; c++) {
-						console.log(checkpoints[c]);
 						if(checkpoints[c] !== currentCheckpoint){
 							checkpoints[c].update(false);
 						}else{
@@ -413,7 +409,6 @@ var App = (function(){
 		}
 
 		if(keys[38] && !levelDone && !player.death){
-			console.log(player.grounded);
 
 				if(player.grounded === true)
 				{
@@ -545,6 +540,7 @@ var App = (function(){
 	}
 
 	function showEndScreen(){
+		score.saveScore(currentLevel, (aantalSeconden) + (aantalSwitches*10) + (aantalCheckpoints*20));
 		clearInterval(timer);
 		$('#endGameMenu').slideDown();
 		if(currentLevel === 8){
@@ -580,13 +576,12 @@ var App = (function(){
 			break;
 
 			case "Next Level":
+			createjs.Sound.stop(1);
 			if(levelDone && currentLevel < 8){
 				if(currentLevel === 4){
-					score.saveScore(currentLevel, (aantalSeconden) + (aantalSwitches*10) + (aantalCheckpoints*20));
 					playVideo('video/traps.mp4', 'video/traps.oggtheora.ogv');
 					$("#endGameMenu").slideUp();
 				}else{
-					score.saveScore(currentLevel, (aantalSeconden) + (aantalSwitches*10) + (aantalCheckpoints*20));
 					setTimeout(initializeMap, 500);
 					$("#endGameMenu").slideUp();
 					createjs.Sound.stop(1);
@@ -602,11 +597,9 @@ var App = (function(){
 			clearInterval(timer);
 			ticker.removeEventListener('tick', update);
 		}else{
-			console.log(menu.restart);
 			if(menu.restart){
 				restartLevel();
 				menu.setRestart(false);
-				console.log('RESTART', menu.restart);
 				createjs.Sound.stop(1);
 				createjs.Sound.play(3);
 			}else{
@@ -805,64 +798,6 @@ var Menu = (function(){
 	};
 
 	return Menu;
-})();
-
-/*globals createjs:true*/
-var MovingPlatformUP = (function(){
-
-	function MovingPlatformUP(x, y, width, height, color, downBound, upBound, startOrientation, speed){
-		this.x = x;
-		this.y = y;
-		this.color = color;
-		this.width = width;
-		this.height = height;
-		this.speed = speed;
-		this.orientation = startOrientation;
-		this.downBound = downBound;
-		this.upBound = upBound;
-		this.shape = new createjs.Shape();
-		this.shape.x = this.x;
-		this.shape.y = this.y;
-		var self = this;
-		self.draw();
-	}
-
-	MovingPlatformUP.prototype.draw = function() {
-		this.shape.graphics.c();
-		this.shape.graphics.f(this.color);
-		this.shape.graphics.dr(0, 0, this.width, this.height);
-		this.shape.graphics.ef();
-		this.move();
-	};
-
-	MovingPlatformUP.prototype.move = function() {
-		if(this.orientation === 'u'){
-			createjs.Tween.get(this).to({y:this.upBound}, this.speed).call(this.changeOrientation);
-			createjs.Tween.get(this.shape).to({y:this.upBound}, this.speed);
-			console.log(this.y);
-		}else{
-			createjs.Tween.get(this).to({y:this.downBound}, this.speed).call(this.changeOrientation);
-			createjs.Tween.get(this.shape).to({y:this.downBound}, this.speed);
-		}
-	};
-
-	MovingPlatformUP.prototype.changeOrientation = function() {
-		if(this.orientation === 'u') {
-			this.orientation = 'd';
-		} else {
-			this.orientation = 'u';
-		}
-		this.move();
-	};
-
-	MovingPlatformUP.prototype.setVisibility = function(visible) {
-		this.shape.visible = visible;
-	};
-
-
-
-	return MovingPlatformUP;
-
 })();
 
 /*globals createjs:true*/
@@ -1070,7 +1005,6 @@ var Player = (function(){
 		this.displayobject.addChild(this.playerSprite);
 		this.displayobject.width = this.width = 18;
 		this.displayobject.height = this.height = 38;
-		console.log(this.displayobject, this.playerSprite, spritesheet);
 	};
 
 	Player.prototype.update = function(friction) {
@@ -1170,21 +1104,17 @@ var Score = (function(){
 
 		$.ajax({
 			type:"GET",
+			context:this,
 			url: Util.api + "/"+ JSON.parse(localStorage.getItem('facebook')),
 			success: function(data)
 			{
 				if(data === "[]")
 				{
-					console.log("empty");
-					console.log("fsdfsd");
-						for (var u=0; u< this.aantalLevels;u++)
+						for (var u=1; u<= this.aantalLevels;u++)
 						{
-							console.log("for lus");
 							level = 'level' +u;
 							postData = {userid:JSON.parse(localStorage.getItem('facebook')),level:u,score:parseInt(this.scores[level])};
-							console.log(postData);
 
-							console.log("begin ajax");
 							$.ajax({
 							type:"POST",
 							url: Util.api,
@@ -1195,15 +1125,14 @@ var Score = (function(){
 				}
 				else
 				{
-					console.log("not empty");
-					for (var i=0; i< this.aantalLevels;i++)
+					for (var i=1; i<= this.aantalLevels;i++)
 					{
 						level = 'level' +i;
 						postData = {level:i,score:parseInt(this.scores[level])};
-						console.log(postData);
 
 						$.ajax({
 						type:"POST",
+						context:this,
 						url: Util.api + "/" +JSON.parse(localStorage.getItem('facebook')),
 						data: postData,
 						success: this.scorePosted()
@@ -1222,7 +1151,6 @@ var Score = (function(){
 	};
 
 	Score.prototype.scorePosted = function(data) {
-		console.log("great success");
 	};
 
 	return Score;
@@ -1287,11 +1215,9 @@ var TileMap = (function(){
 			success:this.jsonLoaded}
 		);
 
-		console.log('json inladen');
 	};
 
 	Map.prototype.jsonLoaded = function( data ){
-		console.log('json loaded');
 		this.mapData = data;
 		this.initLayers();
 	};
@@ -1308,7 +1234,6 @@ var TileMap = (function(){
 			}
 		};
 
-		console.log('ImageData: ', imageData);
 
 		var tilesetSheet = new createjs.SpriteSheet(imageData);
 
@@ -1321,7 +1246,6 @@ var TileMap = (function(){
 
 		this.spawnX = this.mapData.spawnpoint[0];
 		this.spawnY = this.mapData.spawnpoint[1];
-		console.log("movingtiles in tilemap: ", this.movingtiles);
 		bean.fire(this, 'mapLoaded');
 	};
 
@@ -1359,7 +1283,6 @@ var TileMap = (function(){
 						case "World":
 
 							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
-							console.log("worldtile added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.worldtiles.push(worldTile);
 						break;
@@ -1367,14 +1290,12 @@ var TileMap = (function(){
 						case "Traps":
 
 							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
-							console.log("worldtile added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.worldtiles.push(worldTile);
 						break;
 
 						case "Suitcase":
 							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
-							console.log("platform  added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.worldtiles.push(worldTile);
 							this.endPoint = worldTile;
@@ -1382,7 +1303,6 @@ var TileMap = (function(){
 
 						case "Collision":
 							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
-							console.log("collision worldtile added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.collisiontiles.push(worldTile);
 							//cameras[0].push(boxDeath);
@@ -1390,14 +1310,12 @@ var TileMap = (function(){
 
 						case "Deadzone":
 							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
-							console.log("deadzone added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.deathzones.push(worldTile);
 						break;
 
 						case "Platform":
 							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
-							console.log("platform  added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.platformtiles.push(worldTile);
 						break;
@@ -1405,21 +1323,18 @@ var TileMap = (function(){
 						case "MovingPlatform":
 							var speed = layerData.speed;
 							worldTile = new MovingTile(cellBitmap, tilewidth, tileheight, targetX, targetY, speed);
-							console.log("movingplatform added with target: ", targetX, targetY);
 							this.displayobject.addChild(worldTile.displayobject);
 							this.movingtiles.push(worldTile);
 						break;
 
 						case "Checkpoints":
 							worldTile = new Checkpoint(cellBitmap, tilewidth, tileheight);
-							console.log("Checkpoint added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.checkpoints.push(worldTile);
 						break;
 
 						case "Trap":
 							worldTile = new Tile(cellBitmap, tilewidth, tileheight);
-							console.log("Trap added");
 							this.displayobject.addChild(worldTile.displayobject);
 							this.traps.push(worldTile);
 						break;
@@ -1461,27 +1376,6 @@ var World =(function(){
 		this.container.addChild(element);
 	};
 
-	/*World.prototype.followPlayerX = function(player, width, offset) {
-		var x = -(player.x - (width/2)) + offset;
-		if(x < this.boundW) {
-			this.container.x = this.boundW;
-		}else if(x > 0) {
-			this.container.x = 0;
-		}else {
-			this.container.x = x;
-		}
-	};
-
-	World.prototype.followPlayerY = function(player, height, offset) {
-		var y = -(player.y - (height/2)) + offset;
-		if(y < this.boundH) {
-			this.container.y = this.boundH;
-		}else if(y > 0) {
-			this.container.y = 0;
-		}else {
-			this.container.y = y;
-		}
-	};*/
 
 	return World;
 
@@ -1534,13 +1428,9 @@ var World =(function(){
 
 	function fbLogin(){
 		FB.login(function(response){
-			console.log('AANT INLOGGEN');
 			if (response.authResponse) {
-				console.log(response);
 				$('#facebookPicture').html("<img src ='http://graph.facebook.com/" + response.authResponse.userID + "/picture");
 				localStorage.setItem('facebook', JSON.stringify(response.authResponse.userID));
-			} else {
-				console.log(response);
 			}
 		});
 	}
@@ -1652,7 +1542,6 @@ var World =(function(){
 		var scores = {};
 		var aantalLevelsUitgespeeld = 0;
 
-				console.log(Util.api);
 
 				if(JSON.parse(localStorage.getItem('facebook')) !== "")
 				{
@@ -1661,7 +1550,42 @@ var World =(function(){
 						url: Util.api + "/"+ JSON.parse(localStorage.getItem('facebook')),
 						success: function(data)
 						{
-							console.log(data);
+							data = JSON.parse(data);
+							for (var i = 0; i<= 7; i++)
+							{
+								var levelString = "level" + i;
+								var score = parseInt(data[i].score);
+								
+								if(score !== 0)
+								{
+									aantalLevelsUitgespeeld++;
+									$(levels[i]).find('span').html(score);
+								}else
+								{
+									$(levels[i]).find('span').html("???");
+								}
+							}
+
+							for(var j = 1; j<= aantalLevelsUitgespeeld; j++)
+							{
+								$(levels[j]).addClass('show');
+							}
+						}
+					});
+
+					$.ajax({
+						type:"GET",
+						url: Util.api,
+						success: function(data)
+						{
+							data = JSON.parse(data);
+							$("#highscore").html("");
+							
+							for(var s = 0; s<data.length;s++)
+							{
+								var item = "<ul><li><img src='https://graph.facebook.com/"+ data[s].userid + "/picture'/></li><li>"+ data[s].totaal +"</li></ul>";
+								$("#highscore").append(item);
+							}
 						}
 					});
 				}
@@ -1717,7 +1641,6 @@ var World =(function(){
 		});
 
 	}
-
 
 	function startGame(level)
 	{

@@ -36,21 +36,17 @@ var Score = (function(){
 
 		$.ajax({
 			type:"GET",
+			context:this,
 			url: Util.api + "/"+ JSON.parse(localStorage.getItem('facebook')),
 			success: function(data)
 			{
 				if(data === "[]")
 				{
-					console.log("empty");
-					console.log("fsdfsd");
-						for (var u=0; u< this.aantalLevels;u++)
+						for (var u=1; u<= this.aantalLevels;u++)
 						{
-							console.log("for lus");
 							level = 'level' +u;
 							postData = {userid:JSON.parse(localStorage.getItem('facebook')),level:u,score:parseInt(this.scores[level])};
-							console.log(postData);
 
-							console.log("begin ajax");
 							$.ajax({
 							type:"POST",
 							url: Util.api,
@@ -61,15 +57,14 @@ var Score = (function(){
 				}
 				else
 				{
-					console.log("not empty");
-					for (var i=0; i< this.aantalLevels;i++)
+					for (var i=1; i<= this.aantalLevels;i++)
 					{
 						level = 'level' +i;
 						postData = {level:i,score:parseInt(this.scores[level])};
-						console.log(postData);
 
 						$.ajax({
 						type:"POST",
+						context:this,
 						url: Util.api + "/" +JSON.parse(localStorage.getItem('facebook')),
 						data: postData,
 						success: this.scorePosted()
@@ -88,7 +83,6 @@ var Score = (function(){
 	};
 
 	Score.prototype.scorePosted = function(data) {
-		console.log("great success");
 	};
 
 	return Score;

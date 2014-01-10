@@ -15,27 +15,6 @@ var World =(function(){
 		this.container.addChild(element);
 	};
 
-	/*World.prototype.followPlayerX = function(player, width, offset) {
-		var x = -(player.x - (width/2)) + offset;
-		if(x < this.boundW) {
-			this.container.x = this.boundW;
-		}else if(x > 0) {
-			this.container.x = 0;
-		}else {
-			this.container.x = x;
-		}
-	};
-
-	World.prototype.followPlayerY = function(player, height, offset) {
-		var y = -(player.y - (height/2)) + offset;
-		if(y < this.boundH) {
-			this.container.y = this.boundH;
-		}else if(y > 0) {
-			this.container.y = 0;
-		}else {
-			this.container.y = y;
-		}
-	};*/
 
 	return World;
 
