@@ -20,7 +20,6 @@
 		$("#inGameMenu").hide();
 		$("#endGameMenu").hide();
 		$("#highscore").hide();
-		$('#videoPlayer').hide();
 
 		$("#guy").on('click', fbLogin);
 
@@ -161,15 +160,7 @@
 		var aantalLevelsUitgespeeld = 0;
 
 
-		FB.getLoginStatus(function(response)
-		{
-			if (response.status === 'connected')
-			{
-				var uid = response.authResponse.userID;
-				console.log("facebook is connected");
-			}
-			else
-			{
+
 				if(localStorage && localStorage.getItem('scores'))
 				{
 			
@@ -191,9 +182,8 @@
 				{
 					$(levels[j]).addClass('show');
 				}
-				}
 			}
-		});
+
 
 		$("h1").click(function(){
 			if($(this).html() === menuItems[0])
@@ -204,6 +194,8 @@
 					}else{
 						startGame(aantalLevels);
 					}
+					
+
 			}
 		});
 
