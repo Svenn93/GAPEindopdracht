@@ -89,7 +89,6 @@ var App = (function(){
 			$("#endGameMenu ul").on("click", "li", endGameItemHandler);
 		}
 
-		score.syncScores();
 
 		window.onkeydown = keydown;
 		window.onkeyup = keyup;
@@ -143,6 +142,7 @@ var App = (function(){
 			$('#videoPlayer').slideUp();
 			setTimeout(initializeMap, 600);
 			score = new Score();
+			score.syncScores();
 			menu = new Menu();
 			bean.on(menu, 'pausedStateChanged', pauseHandler);
 			$("#endGameMenu ul").on("click", "li", endGameItemHandler);
@@ -190,7 +190,6 @@ var App = (function(){
 		movingboxes = map.movingtiles;
 		checkpoints = map.checkpoints;
 
-		console.log(checkpoints);
 
 		//camera logica
 		cameras[0] = map.collisiontiles.concat(map.worldtiles, map.deathzones, map.platformtiles);
@@ -355,9 +354,7 @@ var App = (function(){
 		if(keys[32]){
 			for (var b = 0; b < checkpoints.length; b++){
 			if(CollisionDetection.checkCollisionSimple(player, checkpoints[b])){
-				console.log('collision aant checken');
 				currentCheckpoint = checkpoints[b];
-				console.log(currentCheckpoint, spawnX);
 				if(spawnX !== currentCheckpoint.x)
 				{
 					var instance = createjs.Sound.play(5, createjs.Sound.INTERRUPT_NONE, 0, 0, false, 1);
@@ -365,7 +362,6 @@ var App = (function(){
 					spawnX = currentCheckpoint.x;
 					spawnY = currentCheckpoint.y;
 					for (var c = 0; c < checkpoints.length; c++) {
-						console.log(checkpoints[c]);
 						if(checkpoints[c] !== currentCheckpoint){
 							checkpoints[c].update(false);
 						}else{
@@ -410,7 +406,6 @@ var App = (function(){
 		}
 
 		if(keys[38] && !levelDone && !player.death){
-			console.log(player.grounded);
 
 				if(player.grounded === true)
 				{
@@ -542,6 +537,7 @@ var App = (function(){
 	}
 
 	function showEndScreen(){
+		score.saveScore(currentLevel, (aantalSeconden) + (aantalSwitches*10) + (aantalCheckpoints*20));
 		clearInterval(timer);
 		$('#endGameMenu').slideDown();
 		if(currentLevel === 8){
@@ -577,13 +573,12 @@ var App = (function(){
 			break;
 
 			case "Next Level":
+			createjs.Sound.stop(1);
 			if(levelDone && currentLevel < 8){
 				if(currentLevel === 4){
-					score.saveScore(currentLevel, (aantalSeconden) + (aantalSwitches*10) + (aantalCheckpoints*20));
 					playVideo('video/traps.mp4', 'video/traps.oggtheora.ogv');
 					$("#endGameMenu").slideUp();
 				}else{
-					score.saveScore(currentLevel, (aantalSeconden) + (aantalSwitches*10) + (aantalCheckpoints*20));
 					setTimeout(initializeMap, 500);
 					$("#endGameMenu").slideUp();
 					createjs.Sound.stop(1);
@@ -599,11 +594,9 @@ var App = (function(){
 			clearInterval(timer);
 			ticker.removeEventListener('tick', update);
 		}else{
-			console.log(menu.restart);
 			if(menu.restart){
 				restartLevel();
 				menu.setRestart(false);
-				console.log('RESTART', menu.restart);
 				createjs.Sound.stop(1);
 				createjs.Sound.play(3);
 			}else{

@@ -45,13 +45,9 @@
 
 	function fbLogin(){
 		FB.login(function(response){
-			console.log('AANT INLOGGEN');
 			if (response.authResponse) {
-				console.log(response);
 				$('#facebookPicture').html("<img src ='http://graph.facebook.com/" + response.authResponse.userID + "/picture");
 				localStorage.setItem('facebook', JSON.stringify(response.authResponse.userID));
-			} else {
-				console.log(response);
 			}
 		});
 	}
@@ -163,7 +159,6 @@
 		var scores = {};
 		var aantalLevelsUitgespeeld = 0;
 
-				console.log(Util.api);
 
 				if(JSON.parse(localStorage.getItem('facebook')) !== "")
 				{
@@ -172,7 +167,42 @@
 						url: Util.api + "/"+ JSON.parse(localStorage.getItem('facebook')),
 						success: function(data)
 						{
-							console.log(data);
+							data = JSON.parse(data);
+							for (var i = 0; i<= 7; i++)
+							{
+								var levelString = "level" + i;
+								var score = parseInt(data[i].score);
+								
+								if(score !== 0)
+								{
+									aantalLevelsUitgespeeld++;
+									$(levels[i]).find('span').html(score);
+								}else
+								{
+									$(levels[i]).find('span').html("???");
+								}
+							}
+
+							for(var j = 1; j<= aantalLevelsUitgespeeld; j++)
+							{
+								$(levels[j]).addClass('show');
+							}
+						}
+					});
+
+					$.ajax({
+						type:"GET",
+						url: Util.api,
+						success: function(data)
+						{
+							data = JSON.parse(data);
+							$("#highscore").html("");
+							
+							for(var s = 0; s<data.length;s++)
+							{
+								var item = "<ul><li><img src='https://graph.facebook.com/"+ data[s].userid + "/picture'/></li><li>"+ data[s].totaal +"</li></ul>";
+								$("#highscore").append(item);
+							}
 						}
 					});
 				}
@@ -228,7 +258,6 @@
 		});
 
 	}
-
 
 	function startGame(level)
 	{

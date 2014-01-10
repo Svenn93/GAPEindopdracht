@@ -56,7 +56,6 @@ var Player = (function(){
 		this.displayobject.addChild(this.playerSprite);
 		this.displayobject.width = this.width = 18;
 		this.displayobject.height = this.height = 38;
-		console.log(this.displayobject, this.playerSprite, spritesheet);
 	};
 
 	Player.prototype.update = function(friction) {

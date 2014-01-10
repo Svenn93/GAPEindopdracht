@@ -13,7 +13,7 @@ class ScoresDAO
 
     public function getScores()
     {
-        $sql = 'SELECT * FROM scores ORDER BY score DESC';
+        $sql = 'SELECT userid, SUM(score) AS totaal FROM scores GROUP BY userid ORDER BY totaal ASC';
         $stmt = $this->pdo->prepare($sql);
         if($stmt->execute())
         {
@@ -27,7 +27,7 @@ class ScoresDAO
 
     public function getScoresByUserId($userid)
     {
-        $sql = 'SELECT * FROM scores WHERE userid=:userid';
+        $sql = 'SELECT * FROM scores WHERE userid=:userid ORDER BY level ASC';
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(":userid",$userid);
         if($stmt->execute())
@@ -42,7 +42,6 @@ class ScoresDAO
 
     public function insertScore($userid,$level,$score)
     {
-         print_r($userid);
         $sql = "INSERT INTO scores(userid,level,score) VALUES(:userid,:level,:score)";
         $stmt = $this->pdo->prepare($sql);
         $stmt->bindValue(":userid",$userid);
