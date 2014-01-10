@@ -1291,11 +1291,6 @@ var World =(function(){
 	function checkFBStatus(){
 		FB.getLoginStatus(function(response) {
 			if (response.status === 'connected') {
-			// the user is logged in and has authenticated your
-			// app, and response.authResponse supplies
-			// the user's ID, a valid access token, a signed
-			// request, and the time the access token 
-			// and signed request each expire
 			var uid = response.authResponse.userID;
 			var accessToken = response.authResponse.accessToken;
 			$('#menu').append("<img src ='http://graph.facebook.com/" + uid + "/picture' />");
@@ -1309,6 +1304,7 @@ var World =(function(){
 
 	function fbLogin(){
 		FB.login(function(response) {
+			console.log('AANT INLOGGEN');
 			if (response.authResponse) {
 				$('#menu').append("<img src ='http://graph.facebook.com/" + response.authResponse.userID + "/picture");
 			} else {
