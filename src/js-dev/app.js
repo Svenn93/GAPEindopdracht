@@ -1,5 +1,5 @@
 /*globals stage:true, Bound:true, Platform:true, CollisionDetection:true, 
-MovingPlatform:true, MovingPlatformUP:true, createjs:true, FPSMeter:true, 
+MovingPlatform:true, Menu:true, createjs:true, FPSMeter:true, 
 bean:true, World:true, Player:true, Image:true, WorldTile:true, TileMap:true*/
 var App = (function(){
 
@@ -20,6 +20,7 @@ var App = (function(){
 
 	var tileset;
 	var map;
+	var menu;
 
 	var spawnX;
 	var spawnY;
@@ -73,9 +74,11 @@ var App = (function(){
 
 		initializeMap();
 
+		menu = new Menu();
+		bean.on(menu, 'pausedStateChanged', pauseHandler);
+
 		window.onkeydown = keydown;
 		window.onkeyup = keyup;
-		$('#inGameMenuButton').click(function(){menuHandler();});
 
 		stage.addChild(world.container);
 	}
@@ -84,9 +87,7 @@ var App = (function(){
 		if(typeof map !== 'undefined'){
 			world.container.removeChild(map.displayobject);
 		}
-		console.log(map);
 		map = new TileMap(currentLevel);
-		console.log(map);
 		bean.on(map, 'mapLoaded', mapLoadedHandler);
 	}
 
@@ -469,44 +470,14 @@ var App = (function(){
 		});
 	}
 
-	function menuHandler(){
-
-		$("#inGameMenu").slideDown();
-
-		if(paused === false)
-		{
-			paused = true;
-			ticker.removeEventListener("tick", update);
-			$("#inGameMenu ul").on("click", "li", function(){
-
-				switch($(this).html())
-				{
-					case "Main menu":
-
-					break;
-
-					case "Restart":
-						$("#inGameMenu").slideUp();
-						restartLevel();
-						paused = false;
-					break;
-
-					case "Continue":
-						$("#inGameMenu").slideUp();
-						ticker.addEventListener("tick", update);
-						paused = false;
-					break;
-				}
-
-			});
-			
-		}
-		else if(paused === true)
-		{
-			ticker.addEventListener("tick", update);
-			paused = false;
+	function pauseHandler(){
+		if(menu.paused){
+			ticker.removeEventListener('tick', update);
+		}else{
+			ticker.addEventListener('tick', update);
 		}
 	}
+
 
 	return App;
 
