@@ -121,11 +121,13 @@ var App = (function(){
 		movingboxes = map.movingtiles;
 		checkpoints = map.checkpoints;
 
+		console.log(checkpoints);
+
 		//camera logica
 		cameras[0] = map.collisiontiles.concat(map.worldtiles, map.deathzones, map.platformtiles);
 		cameras[1] = map.movingtiles;
 		cameras[2] = map.traps;
-		initCameras();
+		//initCameras();
 
 		endPoint = map.endPoint;
 
@@ -281,15 +283,16 @@ var App = (function(){
 		if(keys[32]){
 			for (var b = 0; b < checkpoints.length; b++){
 			if(CollisionDetection.checkCollisionSimple(player, checkpoints[b])){
+				console.log('collision aant checken');
 				currentCheckpoint = checkpoints[b];
-
+				console.log(currentCheckpoint, spawnX);
 				if(spawnX !== currentCheckpoint.x)
 				{
 					aantalCheckpoints ++;
 					spawnX = currentCheckpoint.x;
 					spawnY = currentCheckpoint.y;
-					//checkpoints[checkpoints.indexOf(currentCheckpoint)].update(true);
 					for (var c = 0; c < checkpoints.length; c++) {
+						console.log(checkpoints[c]);
 						if(checkpoints[c] !== currentCheckpoint){
 							checkpoints[c].update(false);
 						}else{
@@ -477,9 +480,11 @@ var App = (function(){
 			break;
 
 			case "Next Level":
-			if(levelDone){
+			if(levelDone && currentLevel < 8){
 				setTimeout(initializeMap, 500);
 				$("#endGameMenu").slideUp();
+			}else{
+				
 			}
 			break;
 		}
