@@ -37,6 +37,8 @@ var App = (function(){
 	var timer;
 	var score;
 
+	var jump = false;
+
 
 	function App(level){
 		boxes = [];
@@ -85,6 +87,29 @@ var App = (function(){
 		window.onkeyup = keyup;
 
 		stage.addChild(world.container);
+
+			var assetsPath = "audio/";
+            var manifest = [
+				{src:"afterLevel.ogg", id:1},
+				{src:"death.ogg", id:2},
+				{src:"inGameMusic.ogg", id:3},
+				{src:"jump.ogg", id:4},
+                {src:"safe.ogg", id:5},
+            ];
+
+             createjs.Sound.alternateExtensions = ["mp3"];        // add other extensions to try loading if the src file extension is not supported
+            createjs.Sound.addEventListener("fileload", createjs.proxy(soundLoaded, this)); // add an event listener for when load is completed
+            createjs.Sound.registerManifest(manifest, assetsPath);
+}
+
+    function soundLoaded(event)
+    {
+		playTheme();
+	}
+
+	function playTheme()
+	{
+		var instance = createjs.Sound.play(3, createjs.Sound.INTERRUPT_NONE, 0, 0, false, 1);
 	}
 
 	function initializeMap(){
@@ -234,6 +259,7 @@ var App = (function(){
 				player.grounded = true;
 				player.jumping = false;
 				if(!player.death){
+					var death = createjs.Sound.play(2, createjs.Sound.INTERRUPT_NONE, 0, 0, false, 1);
 					ticker.removeEventListener('tick', update);
 					setTimeout(repositionPlayer, 200);
 				}
@@ -276,6 +302,8 @@ var App = (function(){
 			
 			if(!levelDone){
 				levelDone = true;
+				createjs.Sound.stop(3);
+				createjs.Sound.play(1, createjs.Sound.INTERRUPT_NONE, 0, 0, true, 1);
 				setTimeout(showEndScreen, 500);
 			}
 
@@ -291,6 +319,7 @@ var App = (function(){
 				console.log(currentCheckpoint, spawnX);
 				if(spawnX !== currentCheckpoint.x)
 				{
+					var instance = createjs.Sound.play(5, createjs.Sound.INTERRUPT_NONE, 0, 0, false, 1);
 					aantalCheckpoints ++;
 					spawnX = currentCheckpoint.x;
 					spawnY = currentCheckpoint.y;
@@ -340,8 +369,15 @@ var App = (function(){
 		}
 
 		if(keys[38] && !levelDone && !player.death){
+			console.log(player.grounded);
+
+				if(player.grounded === true)
+				{
+					createjs.Sound.play(4, createjs.Sound.INTERRUPT_NONE, 200, 0, false, 0.5);
+				}
 			//omhoog
 			if(player.grounded && !player.jumping){
+						
 				player.grounded = false;
 				player.jumping = true;
 				player.velY = -player.speed * 2;
@@ -440,7 +476,6 @@ var App = (function(){
 
 
 	function initCameras(){
-		console.log("init cameras");
 		cameraVisibilities[0] = true;
 		cameraVisibilities[1] = false;
 		cameraVisibilities[2] = false;
@@ -497,6 +532,8 @@ var App = (function(){
 				score.saveScore(currentLevel, (aantalSeconden) + (aantalSwitches*10) + (aantalCheckpoints*20));
 				setTimeout(initializeMap, 500);
 				$("#endGameMenu").slideUp();
+				createjs.Sound.stop(1);
+				createjs.Sound.play(3);
 			}
 			break;
 		}
