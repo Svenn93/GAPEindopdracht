@@ -12,7 +12,8 @@
       if (response.status === 'connected') {
       var uid = response.authResponse.userID;
       var accessToken = response.authResponse.accessToken;
-      $('#menu').append("<img src ='http://graph.facebook.com/" + uid + "/picture' />");
+      $('#facebookPicture').html("<img src ='http://graph.facebook.com/" + uid + "/picture' />");
+      localStorage.setItem('facebook', JSON.stringify(uid));
       } else if (response.status === 'not_authorized') {
       $('#menu').append("<p>ingelogd, zonder permisse</p>");
       } else {

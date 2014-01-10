@@ -252,6 +252,30 @@ h1{
 	background-image: url("images/level2.png");
 }
 
+.show:nth-child(3){
+	background-image: url("images/level3.png");
+}
+
+.show:nth-child(4){
+	background-image: url("images/level4.png");
+}
+
+.show:nth-child(5){
+	background-image: url("images/level4.png");
+}
+
+.show:nth-child(6){
+	background-image: url("images/level6.png");
+}
+
+.show:nth-child(7){
+	background-image: url("images/level7.png");
+}
+
+.show:nth-child(8){
+	background-image: url("images/level8.png");
+}
+
 #scores{
 	background-color: rgba(0,0,0,0.5);
 	font-size: 0.5em;
@@ -389,9 +413,20 @@ h1{
 }
 
 #highscore ul  li:nth-child(3){
-		margin-top: 15px;
+	margin-top: 15px;
 	position: relative;
 	float: right;
+}
+
+#facebookPicture{
+
+	z-index: 100;
+	padding-left: 105px;
+	padding-bottom: 30px;
+	position: fixed;
+	bottom: 0;
+	left: 10%;
+
 }
 
 

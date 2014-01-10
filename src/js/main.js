@@ -1420,12 +1420,13 @@ var World =(function(){
 
 
 	function fbLogin(){
-		FB.login(function(response) {
+		FB.login(function(response){
 			console.log('AANT INLOGGEN');
 			if (response.authResponse) {
-				$('#menu').append("<img src ='http://graph.facebook.com/" + response.authResponse.userID + "/picture");
+				console.log(response);
+				$('#facebookPicture').html("<img src ='http://graph.facebook.com/" + response.authResponse.userID + "/picture");
+				localStorage.setItem('facebook', JSON.stringify(response.authResponse.userID));
 			} else {
-
 				console.log(response);
 			}
 		});
@@ -1435,12 +1436,21 @@ var World =(function(){
 	{
 		if(timer < 9)
 		{
-			$("#guy").attr("src","images/guyNormal.png");
+			if(JSON.parse(localStorage.getItem('facebook')) !== "")
+			{
+				$("#facebookPicture").show();
+				$("#guy").attr("src","images/guyFacebook.png");
+			}
+			else
+			{
+				$("#guy").attr("src","images/guyNormal.png");
+			}
 			timer +=1;
 		}
 		else if(timer === 9)
 		{
 			$("#guy").attr("src","images/guyDrink.png");
+			$("#facebookPicture").hide();
 			timer = 0;
 		}
 		
