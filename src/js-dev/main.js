@@ -1,4 +1,4 @@
-/*globals App:true, FB:true, Konami:true*/
+/*globals App:true, FB:true, Konami:true*, Util:true*/
 
 (function()
 {
@@ -21,6 +21,9 @@
 		$("#endGameMenu").hide();
 		$("#highscore").hide();
 		$('#videoPlayer').hide();
+
+		$("#facebookPicture").hide();
+
 
 		$("#guy").on('click', fbLogin);
 
@@ -160,30 +163,45 @@
 		var scores = {};
 		var aantalLevelsUitgespeeld = 0;
 
+				console.log(Util.api);
 
+				if(JSON.parse(localStorage.getItem('facebook')) !== "")
+				{
+					$.ajax({
+						type:"GET",
+						url: Util.api + "/"+ JSON.parse(localStorage.getItem('facebook')),
+						success: function(data)
+						{
+							console.log(data);
+						}
+					});
+				}
+				else
+				{
 
-				if(localStorage && localStorage.getItem('scores'))
-				{
-			
-				scores = JSON.parse(localStorage.getItem('scores'));
-				for (var i = 1; i<= 8; i++)
-				{
-					var levelString = "level" + i;
-					if(scores[levelString] !== 0)
-					{
-						aantalLevelsUitgespeeld++;
-						$(levels[i-1]).find('span').html(scores[levelString]);
-					}else
-					{
-						$(levels[i-1]).find('span').html("???");
+					if(localStorage && localStorage.getItem('scores'))
+						{
+						scores = JSON.parse(localStorage.getItem('scores'));
+						for (var i = 1; i<= 8; i++)
+						{
+							var levelString = "level" + i;
+							if(scores[levelString] !== 0)
+							{
+								aantalLevelsUitgespeeld++;
+								$(levels[i-1]).find('span').html(scores[levelString]);
+							}else
+							{
+								$(levels[i-1]).find('span').html("???");
+							}
+						}
+
+						for(var j = 1; j<= aantalLevelsUitgespeeld; j++)
+						{
+							$(levels[j]).addClass('show');
+						}
 					}
-				}
 
-				for(var j = 1; j<= aantalLevelsUitgespeeld; j++)
-				{
-					$(levels[j]).addClass('show');
 				}
-			}
 
 
 		$("h1").click(function(){

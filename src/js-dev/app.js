@@ -89,6 +89,8 @@ var App = (function(){
 			$("#endGameMenu ul").on("click", "li", endGameItemHandler);
 		}
 
+		score.syncScores();
+
 		window.onkeydown = keydown;
 		window.onkeyup = keyup;
 
