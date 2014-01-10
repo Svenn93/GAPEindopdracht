@@ -1,6 +1,7 @@
 <?php
 
 
+header("Content-Type: application/json");
 define('WWW_ROOT', dirname(__FILE__) . DIRECTORY_SEPARATOR);
 define('DS', DIRECTORY_SEPARATOR);
 
@@ -12,12 +13,17 @@ require_once 'Slim' . DS . 'Slim.php';
 
 $app = new Slim();
 
+$app->get('/score', 'getScores');
 $app->get('/score/:id', 'getScoresByUserId');
-$app->post('/insertScore','insertScore');
-$app->post('/updateScore','updateScore');
-
+$app->post('/score','insertScore');
+$app->post('/score/:id','updateScore');
 
 $app->run();
+
+function getScores(){
+    $scoresDAO = new ScoresDAO();
+    echo json_encode($scoresDAO->getScores());
+}
 
 function getScoresByUserId($id){
     $scoresDAO = new ScoresDAO();
@@ -27,7 +33,7 @@ function getScoresByUserId($id){
 function insertScore(){
     $post = (array) json_decode(Slim::getInstance()->request()->getBody());
     if(empty($post)){
-        $post = Slim::getInstance()->request()->post();
+        $post = Slim::getInstance()->request()->put();
     }
     $scoresDAO = new ScoresDAO();
     echo json_encode(
@@ -35,14 +41,14 @@ function insertScore(){
     );
 }
 
-function updateScore(){
+function updateScore($id){
     $post = (array) json_decode(Slim::getInstance()->request()->getBody());
     if(empty($post)){
         $post = Slim::getInstance()->request()->post();
     }
     $scoresDAO = new ScoresDAO();
     echo json_encode(
-        $scoresDAO->updateScore($post['userid'],$post['level'],$post['score'])
+        $scoresDAO->updateScore($id,$post['level'],$post['score'])
     );
 }
 
