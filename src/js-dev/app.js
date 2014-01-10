@@ -96,6 +96,7 @@ var App = (function(){
 		}
 
 		score = new Score();
+		score.syncScores();
 
 		menu = new Menu();
 		bean.on(menu, 'pausedStateChanged', pauseHandler);

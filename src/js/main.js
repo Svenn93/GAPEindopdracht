@@ -98,6 +98,7 @@ var App = (function(){
 		}
 
 		score = new Score();
+		score.syncScores();
 
 		menu = new Menu();
 		bean.on(menu, 'pausedStateChanged', pauseHandler);
@@ -1096,7 +1097,13 @@ var Player = (function(){
 
 })();
 
+/*globals Util:true*/
+
 var Score = (function(){
+
+	var level;
+	var postData;
+
 	function Score(){
 		this.aantalLevels = 8;
 		this.scores = {};
@@ -1125,8 +1132,64 @@ var Score = (function(){
 	};
 
 	Score.prototype.syncScores = function() {
-		console.log('fb shit');
+
+		$.ajax({
+			type:"GET",
+			url: Util.api + "/"+ JSON.parse(localStorage.getItem('facebook')),
+			success: function(data)
+			{
+				if(data === "[]")
+				{
+					console.log("empty");
+					console.log("fsdfsd");
+						for (var u=0; u< this.aantalLevels;u++)
+						{
+							console.log("for lus");
+							level = 'level' +u;
+							postData = {userid:JSON.parse(localStorage.getItem('facebook')),level:u,score:parseInt(this.scores[level])};
+							console.log(postData);
+
+							console.log("begin ajax");
+							$.ajax({
+							type:"POST",
+							url: Util.api,
+							data: postData,
+							success: this.scorePosted()
+							});
+						}
+				}
+				else
+				{
+					console.log("not empty");
+					for (var i=0; i< this.aantalLevels;i++)
+					{
+						level = 'level' +i;
+						postData = {level:i,score:parseInt(this.scores[level])};
+						console.log(postData);
+
+						$.ajax({
+						type:"POST",
+						url: Util.api + "/" +JSON.parse(localStorage.getItem('facebook')),
+						data: postData,
+						success: this.scorePosted()
+						});
+					}
+				}
+			}
+		});
+
+
+
+		
+
+
+		
 	};
+
+	Score.prototype.scorePosted = function(data) {
+		console.log("great success");
+	};
+
 	return Score;
 
 })();
@@ -1336,6 +1399,16 @@ var TileMap = (function(){
 
 })();
 
+var Util = (function(){
+
+	function Util(){
+	}
+
+	Util.api = "http://localhost/DEVINE/2013-2014/GAP/GAPEindopdracht/api/score";
+
+	return Util;
+})();
+
 /*globals createjs:true*/
 var World =(function(){
 	var boundH, boundW;
@@ -1379,7 +1452,7 @@ var World =(function(){
 
 })();
 
-/*globals App:true, FB:true, Konami:true*/
+/*globals App:true, FB:true, Konami:true*, Util:true*/
 
 (function()
 {
@@ -1401,6 +1474,7 @@ var World =(function(){
 		$("#inGameMenu").hide();
 		$("#endGameMenu").hide();
 		$("#highscore").hide();
+		$("#facebookPicture").hide();
 
 		$("#guy").on('click', fbLogin);
 
@@ -1413,7 +1487,7 @@ var World =(function(){
 		var scores = {};
 		for(var j = 1; j<= 8; j++){
 			var levelstr = 'level' + j;
-			scores[levelstr] = 'HXORZ';
+			scores[levelstr] = '666';
 		}
 		localStorage.setItem('scores', JSON.stringify(scores));
 		location.reload();
@@ -1540,30 +1614,45 @@ var World =(function(){
 		var scores = {};
 		var aantalLevelsUitgespeeld = 0;
 
+				console.log(Util.api);
 
+				if(JSON.parse(localStorage.getItem('facebook')) !== "")
+				{
+					$.ajax({
+						type:"GET",
+						url: Util.api + "/"+ JSON.parse(localStorage.getItem('facebook')),
+						success: function(data)
+						{
+							console.log(data);
+						}
+					});
+				}
+				else
+				{
 
-				if(localStorage && localStorage.getItem('scores'))
-				{
-			
-				scores = JSON.parse(localStorage.getItem('scores'));
-				for (var i = 1; i<= 8; i++)
-				{
-					var levelString = "level" + i;
-					if(scores[levelString] !== 0)
-					{
-						aantalLevelsUitgespeeld++;
-						$(levels[i-1]).find('span').html(scores[levelString]);
-					}else
-					{
-						$(levels[i-1]).find('span').html("???");
+					if(localStorage && localStorage.getItem('scores'))
+						{
+						scores = JSON.parse(localStorage.getItem('scores'));
+						for (var i = 1; i<= 8; i++)
+						{
+							var levelString = "level" + i;
+							if(scores[levelString] !== 0)
+							{
+								aantalLevelsUitgespeeld++;
+								$(levels[i-1]).find('span').html(scores[levelString]);
+							}else
+							{
+								$(levels[i-1]).find('span').html("???");
+							}
+						}
+
+						for(var j = 1; j<= aantalLevelsUitgespeeld; j++)
+						{
+							$(levels[j]).addClass('show');
+						}
 					}
-				}
 
-				for(var j = 1; j<= aantalLevelsUitgespeeld; j++)
-				{
-					$(levels[j]).addClass('show');
 				}
-			}
 
 
 		$("h1").click(function(){
