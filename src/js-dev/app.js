@@ -136,7 +136,6 @@ var App = (function(){
 		}else{
 			createjs.Sound.play(3);
 		}
-		
 	}
 
 	function videoEnded() {
